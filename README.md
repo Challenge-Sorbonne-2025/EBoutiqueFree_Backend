@@ -1,41 +1,17 @@
 # EBoutiqueFree_Backend
-# Trouver la boutique free la plus proche 
+## Trouver la boutique free la plus proche 
 
-# Projet 1 (PYTHON et BASE DE DONNEES)
 
-# Trouver la boutique free la plus proche 
+## Demarrage Django Rest Framework (DRF)
 
-## Contexte
+Une fois le projet cloner: 
 
-Free souhaite diriger le client vers la **boutique la plus proche** lorsqu’il souhaite **changer de mobile**.  
-Votre mission est de développer une **application** capable de répondre à ce besoin.
+```bash
+pip install -r requirements.txt
+```
 
-##  Contenu fourni
-# Projet-1-trouver-boutique-proche
-
-## Contexte
-
-Free souhaite diriger le client vers la **boutique la plus proche** lorsqu’il souhaite **changer de mobile**.  
-Votre mission est de développer une **application** capable de répondre à ce besoin.
-
-##  Contenu fourni
-
-Le projet contient `shops.csv` : un fichier CSV contenant les informations suivantes pour chaque boutique :
-  - Longitude
-  - Latitude
-  - Description
-  - Stock disponible pour chaque mobile
-
-## Objectif
--Implémenter une méthode qui retourne la boutique la plus proche qui a un stock supérieur à 0 pour un id mobile donné.
-bonus : founir une carte réprésentative (Google)
-
-En plus de l'implémentation de la méthode de recherche, vous devez :
-
-- **Créer une table `boutique`**  dans une base de données relationnelle qui contiendra les colonnes descrites dans le CSV.
-- Deux versions sont attendues :
-  - Une pour **SQLite**
-  - Une pour **PostgreSQL**
- 
-  (VIA PYTHON)
+**NB:** 
+- Il ne faut pas faire des push directement sur la branche main; j'ai créer une branche dev a partir de la branch main.
+- chacun doit creer sa propre branch nommé a partir de la branch dev comme parexemple `dev-aby`
+- Noté aussi qu'il faut d'abord mergé sa branche perso (`dev-aby`) avec la branche `dev`, une fois nos modification terminées. Cela va permettre d'éviter au mieux les problémes de conflit.
  
