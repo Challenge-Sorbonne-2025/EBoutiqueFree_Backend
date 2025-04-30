@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-5">Gestion des boutiques Free</h1>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Boutiques actives</h5>
+                    <p class="display-4">{{ boutiques_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Alertes en cours</h5>
+                    <p class="display-4">{{ alertes_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'admin:index' %}" class="btn btn-primary mr-2">
+            <i class="fas fa-cog"></i> Administration
+        </a>
+        <a href="{% url 'boutique:tableau_bord' %}" class="btn btn-success">
+            <i class="fas fa-tachometer-alt"></i> Tableau de bord
+        </a>
+    </div>
+</div>
+{% endblock %}
