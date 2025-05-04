@@ -8,7 +8,6 @@ sqlparse==0.5.3
 typing_extensions==4.13.2
 asgiref==3.8.1
 aspose-words==25.3.0
-Django==5.1.7
 django-bootstrap5==25.1
 numpy==2.2.4
 pandas==2.2.3
