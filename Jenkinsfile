@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         VENV_DIR = 'venv'
-        IMAGE_NAME = "shopApp:${BUILD_NUMBER}"
+        IMAGE_NAME = "shop_app:${BUILD_NUMBER}"
         PYTHONUNBUFFERED = 1
     }
 
@@ -45,7 +45,7 @@ pipeline {
                 echo "📦 Building Docker image ${IMAGE_NAME}..."
                 sh '''
                     docker build -t ${IMAGE_NAME} .
-                    docker tag ${IMAGE_NAME} shopApp:latest
+                    docker tag ${IMAGE_NAME} shop_app:latest
                 '''
             }
         }
