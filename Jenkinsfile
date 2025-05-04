@@ -35,7 +35,7 @@ pipeline {
                 sh '''
                     . ${VENV_DIR}/bin/activate
                     export PYTHONPATH=$PWD
-                    python3 manage.py test
+                    python3 EBoutique_API/manage.py test
                 '''
             }
         }
