@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from apps.boutique.models import Boutique, Produit, Stock, AlerteStock, Marque, Modele
+#from apps.boutique.models import Boutique, Produit, Stock, AlerteStock, Marque, Modele
+from boutique.models import Boutique, Produit, Stock, AlerteStock, Marque, Modele
 
 # --- Boutique ---
 @admin.register(Boutique)
