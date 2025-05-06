@@ -40,14 +40,14 @@ pipeline {
             }
         }
 
-stage('🐳 Docker Compose Build & Start') {
-    steps {
-        echo "📦 Building and starting containers using Docker Compose..."
-        sh '''
-            docker-compose up --build -d
-        '''
-    }
-}
+        stage('🐳 Docker Compose Build & Start') {
+            steps {
+                echo "📦 Building and starting containers using Docker Compose..."
+                sh '''
+                    docker-compose up --build -d
+                '''
+            }
+        }
 
     post {
         always {
