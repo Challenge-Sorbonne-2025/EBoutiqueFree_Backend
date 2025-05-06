@@ -40,27 +40,14 @@ pipeline {
             }
         }
 
-        stage('🐳 Docker build') {
-            steps {
-                echo "📦 Building Docker image ${IMAGE_NAME}..."
-                sh '''
-                    docker build -t ${IMAGE_NAME} .
-                    docker tag ${IMAGE_NAME} shop_app:latest
-                '''
-            }
-        }
-
-
-
-
-
-
-
-
-
-
-  
-  }
+stage('🐳 Docker Compose Build & Start') {
+    steps {
+        echo "📦 Building and starting containers using Docker Compose..."
+        sh '''
+            docker-compose up --build -d
+        '''
+    }
+}
 
     post {
         always {
