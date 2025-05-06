@@ -11,5 +11,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 # Expose le port du serveur Django
-EXPOSE 8000
+EXPOSE  7000
 ENTRYPOINT ["sh", "./entrypoint.sh"]
