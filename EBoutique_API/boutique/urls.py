@@ -1,9 +1,16 @@
-from django.urls import path
-from apps.boutique import views
-from .views import tableau_bord
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import views
 
-app_name = 'boutique'
+router = DefaultRouter()
+router.register(r'marques', views.MarqueViewSet)
+router.register(r'modeles', views.ModeleViewSet)
+router.register(r'boutiques', views.BoutiqueViewSet)
+router.register(r'produits', views.ProduitViewSet)
+router.register(r'stocks', views.StockViewSet)
+router.register(r'archives/produits', views.ArchivedProduitViewSet)
+router.register(r'archives/boutiques', views.ArchivedBoutiqueViewSet)
+
 urlpatterns = [
-    path('tableau-bord/', views.tableau_bord, name='tableau_bord'),
-      
+    path('', include(router.urls)),
 ]

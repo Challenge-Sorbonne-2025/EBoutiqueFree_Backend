@@ -1,86 +1,101 @@
+from django.contrib import admindocs
+
+
 from django.contrib import admin
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
-from apps.boutique.models import Boutique, Produit, Stock, AlerteStock, Marque, Modele
+from .models import Boutique, Produit, Marque, Modele, Stock, ArchivedBoutique, ArchivedProduit
 
-# --- Boutique ---
-@admin.register(Boutique)
-class BoutiqueAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'ville', 'code_postal', 'responsable_link', 'nombre_produits')
-    list_filter = ('ville',)
-    search_fields = ('nom', 'ville', 'code_postal')
-    raw_id_fields = ('responsable',)
-
-    def responsable_link(self, obj):
-        if obj.responsable:
-            return format_html(
-                '<a href="/admin/auth/user/{}/change/">{}</a>',
-                obj.responsable.id,
-                obj.responsable.get_full_name() or obj.responsable.username
-            )
-        return "-"
-    responsable_link.short_description = "Responsable"
-
-    def nombre_produits(self, obj):
-        return obj.stocks.count()
-    nombre_produits.short_description = "Produits en stock"
-
-# --- Produit ---
-@admin.register(Produit)
-class ProduitAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'marque', 'modele', 'prix', 'image_preview')
-    list_filter = ('marque', 'modele')
-    search_fields = ('nom', 'marque__nom', 'modele__nom')
-
-    def image_preview(self, obj):
-        if obj.image and obj.image.url:
-            return mark_safe(f'<img src="{obj.image.url}" style="max-height: 50px;"/>')
-        return "-"
-    image_preview.short_description = "Image"
-
-# --- Stock ---
-@admin.register(Stock)
-class StockAdmin(admin.ModelAdmin):
-    list_display = ('produit', 'boutique', 'quantite', 'seuil_alerte', 'statut_stock')
-    list_filter = ('boutique', 'produit__marque')
-    list_editable = ('quantite', 'seuil_alerte')
-    search_fields = ('produit__nom', 'boutique__nom')
-    raw_id_fields = ('produit', 'boutique')
-
-    def statut_stock(self, obj):
-        if obj.quantite == 0:
-            return format_html('<span style="color: red; font-weight: bold;">RUPTURE</span>')
-        elif obj.quantite < obj.seuil_alerte:
-            return format_html('<span style="color: orange; font-weight: bold;">FAIBLE</span>')
-        return format_html('<span style="color: green;">OK</span>')
-    statut_stock.short_description = "Statut"
-
-# --- AlerteStock ---
-@admin.register(AlerteStock)
-class AlerteStockAdmin(admin.ModelAdmin):
-    list_display = ('stock', 'type_alerte', 'date_creation', 'lue', 'alerte_en_cours')
-    list_filter = ('type_alerte', 'lue')
-    readonly_fields = ('date_creation',)
-    actions = ['marquer_comme_lue']
-
-    def marquer_comme_lue(self, request, queryset):
-        queryset.update(lue=True)
-    marquer_comme_lue.short_description = "Marquer comme lue"
-
-    def alerte_en_cours(self, obj):
-        return not obj.lue
-    alerte_en_cours.boolean = True
-    alerte_en_cours.short_description = "En alerte ?"
-
-# --- Marque ---
 @admin.register(Marque)
 class MarqueAdmin(admin.ModelAdmin):
     list_display = ('nom',)
     search_fields = ('nom',)
+    ordering = ('nom',)
 
-# --- Modele ---
 @admin.register(Modele)
 class ModeleAdmin(admin.ModelAdmin):
     list_display = ('nom', 'marque')
-    search_fields = ('nom', 'marque__nom')
     list_filter = ('marque',)
+    search_fields = ('nom', 'marque__nom')
+    autocomplete_fields = ['marque']
+
+@admin.register(Boutique)
+class BoutiqueAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'ville', 'code_postal', 'responsable', 'date_creation')
+    list_filter = ('ville', 'departement')
+    search_fields = ('nom', 'ville', 'code_postal', 'responsable__username')
+    readonly_fields = ('date_creation', 'date_maj')
+    filter_horizontal = ('gestionnaires',)
+    fieldsets = (
+        ('Informations principales', {
+            'fields': ('nom', 'responsable', 'gestionnaires')
+        }),
+        ('Localisation', {
+            'fields': ('adresse', 'ville', 'code_postal', 'departement', 'longitude', 'latitude')
+        }),
+        ('Contact', {
+            'fields': ('num_telephone', 'email')
+        }),
+        ('Dates', {
+            'fields': ('date_creation', 'date_maj'),
+            'classes': ('collapse',)
+        })
+    )
+
+@admin.register(Produit)
+class ProduitAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'marque', 'modele', 'prix', 'couleur', 'capacite', 'ram')
+    list_filter = ('marque', 'modele', 'couleur')
+    search_fields = ('nom', 'marque__nom', 'modele__nom')
+    autocomplete_fields = ['marque', 'modele']
+    readonly_fields = ('user',)
+    fieldsets = (
+        ('Informations principales', {
+            'fields': ('nom', 'marque', 'modele', 'prix')
+        }),
+        ('Caractéristiques', {
+            'fields': ('couleur', 'capacite', 'ram')
+        }),
+        ('Image', {
+            'fields': ('image',)
+        }),
+        ('Métadonnées', {
+            'fields': ('user',),
+            'classes': ('collapse',)
+        })
+    )
+
+class StockInline(admin.TabularInline):
+    model = Stock
+    extra = 1
+    min_num = 0
+    autocomplete_fields = ['produit']
+
+@admin.register(Stock)
+class StockAdmin(admin.ModelAdmin):
+    list_display = ('boutique', 'produit', 'quantite', 'seuil_alerte')
+    list_filter = ('boutique', 'produit__marque')
+    search_fields = ('boutique__nom', 'produit__nom')
+    autocomplete_fields = ['boutique', 'produit']
+    list_editable = ('quantite', 'seuil_alerte')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        if hasattr(request.user, 'profile'):
+            if request.user.profile.role == 'GESTIONNAIRE':
+                return qs.filter(boutique__gestionnaires=request.user)
+        return qs.none()
+
+@admin.register(ArchivedProduit)
+class ArchivedProduitAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'marque', 'modele', 'prix', 'date_archivage', 'archive_par')
+    list_filter = ('date_archivage', 'marque')
+    search_fields = ('nom', 'marque', 'modele')
+    readonly_fields = ('date_archivage', 'archive_par')
+
+@admin.register(ArchivedBoutique)
+class ArchivedBoutiqueAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'ville', 'code_postal', 'date_archivage', 'archive_par')
+    list_filter = ('date_archivage', 'ville')
+    search_fields = ('nom', 'ville', 'code_postal')
+    readonly_fields = ('date_archivage', 'archive_par')
