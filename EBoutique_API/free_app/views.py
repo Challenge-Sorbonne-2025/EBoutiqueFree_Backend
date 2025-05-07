@@ -1,62 +1,43 @@
-from rest_framework import viewsets, permissions  # Importer permissions ici
-from rest_framework.decorators import action
-from rest_framework.response import Response
-
-from .models import Produit, Marque, Modele, Boutique, Stock
-from .serializers import (
-    ProduitSerializer, MarqueSerializer, ModeleSerializer,
-    BoutiqueSerializer, StockSerializer
-)
-from .models import GestionnaireStock
-from .serializers import GestionnaireStockSerializer
+from rest_framework import generics, permissions, viewsets
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .models import  UserProfile, ArchivedUser
+from .serializers import  UserSerializer, UserProfileSerializer, ArchivedUserSerializer
+from django.contrib.auth.models import User
+from boutique.permissions import EstResponsableBoutique
 
 
-class ProduitViewSet(viewsets.ModelViewSet):
-    queryset = Produit.objects.all()
-    serializer_class = ProduitSerializer
-    permission_classes = [permissions.AllowAny]  # Permet à tout le monde d'accéder à ce ViewSet
 
 
-class MarqueViewSet(viewsets.ModelViewSet):
-    queryset = Marque.objects.all()
-    serializer_class = MarqueSerializer
+class UserCreateView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
 
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-class ModeleViewSet(viewsets.ModelViewSet):
-    queryset = Modele.objects.all()
-    serializer_class = ModeleSerializer
-    permission_classes = [permissions.AllowAny]
+class UserProfileViewSet(viewsets.ModelViewSet):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = [EstResponsableBoutique]
 
+    def perform_destroy(self, instance):
+        user = instance.user
+        # Archiver l'utilisateur avant de le supprimer
+        ArchivedUser.objects.create(
+            original_id=user.id,
+            username=user.username,
+            email=user.email,
+            role=instance.role,
+            telephone=instance.telephone,
+            archive_par=self.request.user,
+            raison=self.request.data.get('raison', 'Non spécifiée')
+        )
+        user.delete()  # Cela supprimera aussi le profil à cause de la relation CASCADE
 
-class BoutiqueViewSet(viewsets.ModelViewSet):
-    queryset = Boutique.objects.all()
-    serializer_class = BoutiqueSerializer
-    permission_classes = [permissions.AllowAny]
-
-    @action(detail=True, methods=['get'])
-    def produits(self, request, pk=None):
-        boutique = self.get_object()
-        stocks = boutique.stocks.select_related('produit')
-        produits = [stock.produit for stock in stocks]
-        serializer = ProduitSerializer(produits, many=True)
-        return Response(serializer.data)
-
-
-class StockViewSet(viewsets.ModelViewSet):
-    queryset = Stock.objects.all()
-    serializer_class = StockSerializer
-    permission_classes = [permissions.AllowAny]
-
-    @action(detail=False, methods=['get'])
-    def alertes(self, request):
-        seuil = 5  # Valeur de seuil par défaut
-        stocks_faibles = self.queryset.filter(quantite__lt=seuil)
-        serializer = self.get_serializer(stocks_faibles, many=True)
-        return Response(serializer.data)
-
-
-class GestionnaireStockViewSet(viewsets.ModelViewSet):
-    queryset = GestionnaireStock.objects.all()
-    serializer_class = GestionnaireStockSerializer
-    permission_classes = [permissions.AllowAny]  # Permet à tout le monde d'accéder à ce ViewSet
+class ArchivedUserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ArchivedUser.objects.all()
+    serializer_class = ArchivedUserSerializer
+    permission_classes = [EstResponsableBoutique]

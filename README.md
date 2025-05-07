@@ -1,17 +1,126 @@
 # EBoutiqueFree_Backend
 ## Trouver la boutique free la plus proche 
 
+Ce projet est une API REST développée avec Django Rest Framework (DRF) qui permet de gérer les boutiques Free et leurs produits. Il utilise PostgreSQL comme base de données.
 
-## Demarrage Django Rest Framework (DRF)
+## Prérequis
 
-Une fois le projet cloner: 
+- Python 3.8 ou supérieur
+- PostgreSQL
+- pip (gestionnaire de paquets Python)
 
+## Installation et Configuration
+
+1. Cloner le projet :
+```bash
+git clone [URL_DU_REPO]
+cd EBoutiqueFree_Backend
+```
+
+2. Créer un environnement virtuel (recommandé) :
+```bash
+python -m venv venv
+source venv/bin/activate  # Sur Linux/Mac
+# ou
+venv\Scripts\activate  # Sur Windows
+```
+
+3. Installer les dépendances :
 ```bash
 pip install -r requirements.txt
 ```
 
-**NB:** 
-- Il ne faut pas faire des push directement sur la branche main; j'ai créer une branche dev a partir de la branch main.
-- chacun doit creer sa propre branch nommé a partir de la branch dev comme parexemple `dev-aby`
-- Noté aussi qu'il faut d'abord mergé sa branche perso (`dev-aby`) avec la branche `dev`, une fois nos modification terminées. Cela va permettre d'éviter au mieux les problémes de conflit.
- 
+4. Configurer la base de données PostgreSQL :
+   - Créer une base de données PostgreSQL
+   - Mettre à jour les paramètres de connexion dans `EBoutique_API/settings.py`
+
+5. Effectuer les migrations :
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+6. Créer un superutilisateur (admin) :
+```bash
+python manage.py createsuperuser
+```
+
+7. Lancer le serveur de développement :
+```bash
+python manage.py runserver
+```
+
+## Structure du Projet
+
+- `EBoutique_API/` : Configuration principale du projet Django
+  - `settings.py` : Configuration du projet
+  - `urls.py` : Configuration des URLs principales
+- `boutique/` : Application principale
+  - `models.py` : Définition des modèles de données
+  - `views.py` : Logique de l'application
+  - `urls.py` : Configuration des URLs de l'application
+  - `serializers.py` : Sérialisation des données pour l'API
+
+## Modèles Principaux
+
+- `Boutique` : Gère les informations des boutiques Free
+- `Produit` : Gère les produits disponibles
+- `User` : Gestion des utilisateurs avec différents rôles (responsable, gestionnaire)
+
+## Bonnes Pratiques de Développement
+
+### Gestion des Branches Git
+
+1. La branche `main` est protégée, ne pas faire de push direct dessus
+2. Utiliser la branche `dev` comme base pour le développement
+3. Créer une branche personnelle à partir de `dev` (ex: `dev-aby`)
+4. Workflow recommandé :
+   ```bash
+   git checkout dev
+   git pull origin dev
+   git checkout -b dev-votre-nom
+   # Faire vos modifications
+   git add .
+   git commit -m "Description des modifications"
+   git push origin dev-votre-nom
+   ```
+
+### Vérifications Avant Commit
+
+1. Vérifier l'état du dépôt :
+```bash
+git status
+git status uno
+```
+
+2. Vérifier les modifications :
+```bash
+git diff
+```
+
+3. Vérifier les conflits potentiels :
+```bash
+git fetch origin
+git merge origin/dev
+```
+
+## Points Importants à Noter
+
+- Les numéros de téléphone et adresses email doivent être uniques
+- Utiliser des migrations pour toute modification de la base de données
+- Documenter les nouvelles fonctionnalités
+- Tester les endpoints API avant de les mettre en production
+
+## Ressources Utiles
+
+- [Documentation Django](https://docs.djangoproject.com/)
+- [Documentation Django REST Framework](https://www.django-rest-framework.org/)
+- [Documentation PostgreSQL](https://www.postgresql.org/docs/)
+
+## Support
+
+Pour toute question ou problème, veuillez créer une issue dans le dépôt GitHub.
+
+```bash
+pip install -r requirements.txt
+```
