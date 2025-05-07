@@ -13,8 +13,8 @@ schema_view = get_schema_view(
         contact=openapi.Contact(email="contact@example.com"),
         license=openapi.License(name="BSD License"),
     ),
-    public=True,
-    permission_classes=[permissions.AllowAny],
+    public=True, #permet l'accés public à la documentation
+    permission_classes=[permissions.AllowAny], # Permet à tout le monde d'accéder à Swagger
 )
 
 urlpatterns = [

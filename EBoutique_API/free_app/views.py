@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions  # Importer permissions ici
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -14,21 +14,25 @@ from .serializers import GestionnaireStockSerializer
 class ProduitViewSet(viewsets.ModelViewSet):
     queryset = Produit.objects.all()
     serializer_class = ProduitSerializer
+    permission_classes = [permissions.AllowAny]  # Permet à tout le monde d'accéder à ce ViewSet
 
 
 class MarqueViewSet(viewsets.ModelViewSet):
     queryset = Marque.objects.all()
     serializer_class = MarqueSerializer
+    permission_classes = [permissions.AllowAny]
 
 
 class ModeleViewSet(viewsets.ModelViewSet):
     queryset = Modele.objects.all()
     serializer_class = ModeleSerializer
+    permission_classes = [permissions.AllowAny]
 
 
 class BoutiqueViewSet(viewsets.ModelViewSet):
     queryset = Boutique.objects.all()
     serializer_class = BoutiqueSerializer
+    permission_classes = [permissions.AllowAny]
 
     @action(detail=True, methods=['get'])
     def produits(self, request, pk=None):
@@ -42,6 +46,7 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
 class StockViewSet(viewsets.ModelViewSet):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
+    permission_classes = [permissions.AllowAny]
 
     @action(detail=False, methods=['get'])
     def alertes(self, request):
@@ -49,6 +54,9 @@ class StockViewSet(viewsets.ModelViewSet):
         stocks_faibles = self.queryset.filter(quantite__lt=seuil)
         serializer = self.get_serializer(stocks_faibles, many=True)
         return Response(serializer.data)
+
+
 class GestionnaireStockViewSet(viewsets.ModelViewSet):
     queryset = GestionnaireStock.objects.all()
     serializer_class = GestionnaireStockSerializer
+    permission_classes = [permissions.AllowAny]  # Permet à tout le monde d'accéder à ce ViewSet

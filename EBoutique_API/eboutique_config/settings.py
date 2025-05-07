@@ -100,13 +100,13 @@ AUTH_USER_MODEL = 'free_app.GestionnaireStock'
 # --- REST FRAMEWORK ---
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',  # Permet l'accès sans authentification
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+        # Pas besoin d'ajouter ici d'authentification si on veut éviter l'authentification
     ],
 }
+
 
 # --- CORS ---
 CORS_ALLOWED_ORIGINS = [
