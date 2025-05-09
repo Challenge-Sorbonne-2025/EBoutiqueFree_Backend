@@ -72,3 +72,4 @@ def notifier_api_frontend(sender, instance, created, **kwargs):
     """
     logger.info(f"[Notifier Frontend] Stock mis à jour : {instance.produit.nom} ({instance.quantite})")
 
+# ============================================================================
