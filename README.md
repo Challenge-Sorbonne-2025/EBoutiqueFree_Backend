@@ -5,7 +5,7 @@ Ce projet est une API REST développée avec Django Rest Framework (DRF) qui per
 
 ## Prérequis
 
-- Python 3.8 ou supérieur
+- Python 3.10 ou supérieur
 - PostgreSQL
 - pip (gestionnaire de paquets Python)
 
@@ -13,7 +13,7 @@ Ce projet est une API REST développée avec Django Rest Framework (DRF) qui per
 
 1. Cloner le projet :
 ```bash
-git clone [URL_DU_REPO]
+git clone [git@github.com:Challenge-Sorbonne-2025/EBoutiqueFree_Backend.git]
 cd EBoutiqueFree_Backend
 ```
 
@@ -52,12 +52,18 @@ python manage.py runserver
 
 ## Structure du Projet
 
-- `EBoutique_API/` : Configuration principale du projet Django
+- `eboutique_config/` : Configuration principale du projet Django
   - `settings.py` : Configuration du projet
   - `urls.py` : Configuration des URLs principales
-- `boutique/` : Application principale
+- `boutique/` : Application principale pour  tous ce qui est relations avec les boutiques
   - `models.py` : Définition des modèles de données
   - `views.py` : Logique de l'application
+  - `urls.py` : Configuration des URLs de l'application
+  - `serializers.py` : Sérialisation des données pour l'API
+
+- `free_app/`: Configuration de l'application free_app (tous ce qui est liées aux utilisateurs)
+  - `models.py` : Définition des modèles de données pour les utiliisateurs
+  - `views.py` : Vue logique de l'application
   - `urls.py` : Configuration des URLs de l'application
   - `serializers.py` : Sérialisation des données pour l'API
 
@@ -124,3 +130,10 @@ Pour toute question ou problème, veuillez créer une issue dans le dépôt GitH
 ```bash
 pip install -r requirements.txt
 ```
+
+## Fichier .env.example
+
+Le fichier `.env.example` est un modèle qui contient les variables d'environnement nécessaires au fonctionnement de l'application. Pour l'utiliser :
+
+1. Copiez le fichier `.env.example` et renommez la copie en `.env`
+2. Remplissez les valeurs des variables dans le fichier `.env` avec vos propres paramètres :

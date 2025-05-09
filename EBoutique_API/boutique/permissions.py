@@ -36,8 +36,18 @@ class EstResponsableBoutique(permissions.BasePermission):
         # Permettre GET à tout le monde
         if request.method in permissions.SAFE_METHODS:
             return True
-        # Pour les autres méthodes, vérifier si c'est un responsable
-        return request.user.is_authenticated and request.user.is_superuser
+            
+        # Pour les autres méthodes, vérifier si c'est un responsable ou un superuser
+        if not request.user.is_authenticated:
+            return False
+            
+        if request.user.is_superuser:
+            return True
+            
+        if hasattr(request.user, 'profile'):
+            return request.user.profile.role == 'RESPONSABLE'
+            
+        return False
 
 class EstGestionnaireBoutique(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -121,6 +131,6 @@ class EstGestionnaireOuResponsable(permissions.BasePermission):
             
         # Vérifier si c'est un gestionnaire
         try:
-            return request.user.profile.role == 'GESTIONNAIRE'
+            return request.user.profile.role in ['RESPONSABLE', 'GESTIONNAIRE']
         except:
             return False

@@ -5,7 +5,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'users', views.UserProfileViewSet)
-router.register(r'archives/users', views.ArchivedUserViewSet)
+router.register(r'archives-users', views.ArchivedUserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

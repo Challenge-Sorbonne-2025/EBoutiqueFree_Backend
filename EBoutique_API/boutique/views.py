@@ -1,10 +1,8 @@
-from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from django.shortcuts import get_object_or_404
 from .models import (
     Marque, Modele, Boutique, Produit, Stock,
     ArchivedProduit, ArchivedBoutique
@@ -40,6 +38,29 @@ class MarqueViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Récupère une marque par son ID",
+        responses={200: MarqueSerializer()}
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Met à jour une marque existante",
+        request_body=MarqueSerializer,
+        responses={200: MarqueSerializer()}
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Supprime une marque existante",
+        responses={204: None}
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
 
 class ModeleViewSet(viewsets.ModelViewSet):
     """
@@ -49,11 +70,90 @@ class ModeleViewSet(viewsets.ModelViewSet):
     serializer_class = ModeleSerializer
     permission_classes = [EstGestionnaireOuResponsable]
 
+    @swagger_auto_schema(
+        operation_description="Liste tous les modèles",
+        responses={200: ModeleSerializer(many=True)}
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Crée un nouveau modèle",
+        request_body=ModeleSerializer,
+        responses={201: ModeleSerializer()}
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Récupère un modèle par son ID",
+        responses={200: ModeleSerializer()}
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Met à jour un modèle existant",
+        request_body=ModeleSerializer,
+        responses={200: ModeleSerializer()}
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Supprime un modèle existant",
+        responses={204: None}
+    )
+    def destroy(self, request, *args, **kwargs):    
+        return super().destroy(request, *args, **kwargs)
+
 class BoutiqueViewSet(viewsets.ModelViewSet):
     queryset = Boutique.objects.all()
     serializer_class = BoutiqueSerializer
-    permission_classes = [EstResponsableBoutique]
+    permission_classes = [EstResponsableBoutique]   
 
+    @swagger_auto_schema(
+        operation_description="Liste toutes les boutiques",
+        responses={200: BoutiqueSerializer(many=True)}
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Crée une nouvelle boutique",
+        request_body=BoutiqueSerializer,
+        responses={201: BoutiqueSerializer()}
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Récupère une boutique par son ID",
+        responses={200: BoutiqueSerializer()}
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Met à jour une boutique existante",
+        request_body=BoutiqueSerializer,
+        responses={200: BoutiqueSerializer()}
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Supprime une boutique existante",
+        responses={204: None}
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+
+    @swagger_auto_schema(
+        operation_description="Archiver une boutique",
+        responses={204: None}
+    )
     def perform_destroy(self, instance):
         # Archiver la boutique avant de la supprimer
         ArchivedBoutique.objects.create(
@@ -73,9 +173,48 @@ class ProduitViewSet(viewsets.ModelViewSet):
     serializer_class = ProduitSerializer
     permission_classes = [EstGestionnaireOuResponsable]
 
+    @swagger_auto_schema(
+        operation_description="Crée un nouveau produit",
+        request_body=ProduitSerializer,
+        responses={201: ProduitSerializer()}
+    )
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    @swagger_auto_schema(
+        operation_description="Liste tous les produits",
+        responses={200: ProduitSerializer(many=True)}
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Récupère un produit par son ID",
+        responses={200: ProduitSerializer()}
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Met à jour un produit existant",
+        request_body=ProduitSerializer,
+        responses={200: ProduitSerializer()}
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Supprime un produit existant",
+        responses={204: None}
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    
+    @swagger_auto_schema(
+        operation_description="Archiver un produit existant",
+        responses={204: None}
+    )
     def perform_destroy(self, instance):
         # Archiver le produit avant de le supprimer
         ArchivedProduit.objects.create(
@@ -96,11 +235,37 @@ class StockViewSet(viewsets.ModelViewSet):
     serializer_class = StockSerializer
     permission_classes = [EstGestionnaireOuResponsable]
 
+    @swagger_auto_schema(
+        operation_description="Liste tous les stocks",
+        responses={200: StockSerializer(many=True)}
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Récupère un stock par son ID",
+        responses={200: StockSerializer()}
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Met à jour un stock existant",
+        request_body=StockSerializer,
+        responses={200: StockSerializer()}
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
     def get_permissions(self):
         if self.action in ['vendre', 'update', 'partial_update', 'create', 'destroy']:
             return [IsAuthenticated(), EstGestionnaireOuResponsable()]
         return []  # Pas de permission requise pour la lecture
 
+    @swagger_auto_schema(
+        operation_description="Liste les stocks faibles",
+        responses={200: StockSerializer(many=True)}
+    )
     @action(detail=False, methods=['get'])
     def alertes(self, request):
         seuil = 5  # Valeur de seuil par défaut
@@ -168,7 +333,36 @@ class ArchivedProduitViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ArchivedProduitSerializer
     permission_classes = [EstResponsableBoutique]
 
+    @swagger_auto_schema(
+        operation_description="Liste tous les produits archivés",
+        responses={200: ArchivedProduitSerializer(many=True)}
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Récupère un produit archivé par son ID",
+        responses={200: ArchivedProduitSerializer()}
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+
 class ArchivedBoutiqueViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ArchivedBoutique.objects.all()
     serializer_class = ArchivedBoutiqueSerializer
     permission_classes = [EstResponsableBoutique]
+
+    @swagger_auto_schema(
+        operation_description="Liste toutes les boutiques archivées",
+        responses={200: ArchivedBoutiqueSerializer(many=True)}
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)  
+    
+    @swagger_auto_schema(
+        operation_description="Récupère une boutique archivée par son ID",
+        responses={200: ArchivedBoutiqueSerializer()}
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
