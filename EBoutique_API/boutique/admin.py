@@ -42,14 +42,14 @@ class BoutiqueAdmin(admin.ModelAdmin):
 
 @admin.register(Produit)
 class ProduitAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'marque', 'modele', 'prix', 'couleur', 'capacite', 'ram')
-    list_filter = ('marque', 'modele', 'couleur')
-    search_fields = ('nom', 'marque__nom', 'modele__nom')
-    autocomplete_fields = ['marque', 'modele']
+    list_display = ('nom', 'modele', 'prix', 'couleur', 'capacite', 'ram')
+    list_filter = ('modele', 'couleur')
+    search_fields = ('nom', 'modele__nom', 'modele__marque__nom')
+    autocomplete_fields = ['modele']
     readonly_fields = ('user',)
     fieldsets = (
         ('Informations principales', {
-            'fields': ('nom', 'marque', 'modele', 'prix')
+            'fields': ('nom', 'modele', 'prix')
         }),
         ('Caractéristiques', {
             'fields': ('couleur', 'capacite', 'ram')
@@ -72,7 +72,7 @@ class StockInline(admin.TabularInline):
 @admin.register(Stock)
 class StockAdmin(admin.ModelAdmin):
     list_display = ('boutique', 'produit', 'quantite', 'seuil_alerte')
-    list_filter = ('boutique', 'produit__marque')
+    list_filter = ('boutique', 'produit__modele__marque')
     search_fields = ('boutique__nom', 'produit__nom')
     autocomplete_fields = ['boutique', 'produit']
     list_editable = ('quantite', 'seuil_alerte')

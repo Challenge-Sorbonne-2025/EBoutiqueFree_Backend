@@ -9,7 +9,7 @@ class UserProfile(models.Model):
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    telephone = models.CharField(max_length=20, blank=True, null=True)
+    telephone = models.CharField(max_length=20, blank=True, null=True, unique=True)
     date_creation = models.DateTimeField(auto_now_add=True)
     date_maj = models.DateTimeField(auto_now=True)
 
@@ -19,8 +19,8 @@ class UserProfile(models.Model):
 
 class ArchivedUser(models.Model):
     original_id = models.IntegerField()
-    username = models.CharField(max_length=150)
-    email = models.EmailField()
+    username = models.CharField(max_length=150, unique=True)
+    email = models.EmailField(unique=True)
     role = models.CharField(max_length=20)
     telephone = models.CharField(max_length=20, blank=True, null=True)
     date_archivage = models.DateTimeField(auto_now_add=True)

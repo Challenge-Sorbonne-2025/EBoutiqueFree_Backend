@@ -11,6 +11,7 @@ class MarqueSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ModeleSerializer(serializers.ModelSerializer):
+    marque = MarqueSerializer()
     class Meta:
         model = Modele
         fields = '__all__'
@@ -22,8 +23,7 @@ class BoutiqueSerializer(serializers.ModelSerializer):
         read_only_fields = ['date_creation', 'date_maj']
 
 class ProduitSerializer(serializers.ModelSerializer):
-    marque_nom = serializers.CharField(source='marque.nom', read_only=True)
-    modele_nom = serializers.CharField(source='modele.nom', read_only=True)
+    modele = ModeleSerializer()
     boutique_id = serializers.IntegerField(write_only=True)
     quantite_initiale = serializers.IntegerField(write_only=True, default=1, min_value=1)
 

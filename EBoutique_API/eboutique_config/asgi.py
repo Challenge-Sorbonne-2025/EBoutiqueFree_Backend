@@ -1,5 +1,5 @@
 """
-ASGI config for eboutiquefree_backend project.
+ASGI config for eboutique_config project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

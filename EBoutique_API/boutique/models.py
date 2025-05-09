@@ -27,6 +27,7 @@ class ArchivedProduit(models.Model):
     prix = models.DecimalField(max_digits=10, decimal_places=2)
     couleur = models.CharField(max_length=50)
     capacite = models.DecimalField(max_digits=10, decimal_places=2)
+    ram = models.DecimalField(max_digits=10, decimal_places=2)
     date_archivage = models.DateTimeField(auto_now_add=True)
     archive_par = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='archived_produits')
     raison = models.TextField()
@@ -41,6 +42,8 @@ class ArchivedBoutique(models.Model):
     ville = models.CharField(max_length=50)
     code_postal = models.CharField(max_length=5)
     departement = models.CharField(max_length=50, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=False)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=False)
     date_archivage = models.DateTimeField(auto_now_add=True)
     archive_par = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='archived_boutiques')
     raison = models.TextField()
@@ -56,10 +59,10 @@ class Boutique(models.Model):
     ville = models.CharField(max_length=50)
     code_postal = models.CharField(max_length=10)  # Pour garder les zéros initiaux
     departement = models.CharField(max_length=50, blank=True, null=False)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=False)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=False)
-    num_telephone = models.CharField(max_length=20, blank=True, null=True)
-    email = models.EmailField(blank=True, null=True)
+    longitude = models.DecimalField(max_digits=12, decimal_places=9, blank=True, null=False)
+    latitude = models.DecimalField(max_digits=12, decimal_places=9, blank=True, null=False)
+    num_telephone = models.CharField(max_length=20, blank=True, null=True, unique=True)
+    email = models.EmailField(blank=True, null=True, unique=True)
     responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='boutiques_responsable')
     gestionnaires = models.ManyToManyField(User, related_name='boutiques_gestionnaire', blank=True)
     date_creation = models.DateTimeField(auto_now_add=True)
@@ -71,7 +74,7 @@ class Boutique(models.Model):
 # Modèle pour la table Produit
 class Produit(models.Model):
     nom = models.CharField(max_length=100)
-    marque = models.ForeignKey(Marque, on_delete=models.CASCADE, related_name='produits')  # Changé en ForeignKey
+    # marque = models.ForeignKey(Marque, on_delete=models.CASCADE, related_name='produits')  # Changé en ForeignKey
     modele = models.ForeignKey(Modele, on_delete=models.CASCADE, related_name='produits')
     prix = models.DecimalField(max_digits=10, decimal_places=2)
     couleur = models.CharField(max_length=50)
@@ -81,7 +84,7 @@ class Produit(models.Model):
     image = models.ImageField(upload_to='produits/', null=True, blank=True)
 
     def __str__(self):
-        return f"{self.nom} ({self.marque}, {self.modele})"
+        return f"{self.nom} ({self.modele})"
 
 # Modèle pour la table Stock
 class Stock(models.Model):

@@ -101,6 +101,13 @@ class StockViewSet(viewsets.ModelViewSet):
             return [IsAuthenticated(), EstGestionnaireOuResponsable()]
         return []  # Pas de permission requise pour la lecture
 
+    @action(detail=False, methods=['get'])
+    def alertes(self, request):
+        seuil = 5  # Valeur de seuil par défaut
+        stocks_faibles = self.queryset.filter(quantite__lt=seuil)
+        serializer = self.get_serializer(stocks_faibles, many=True)
+        return Response(serializer.data)
+
     @swagger_auto_schema(
         method='post',
         operation_description="Vendre un produit (décrémente la quantité en stock)",

@@ -1,5 +1,5 @@
 """
-WSGI config for eboutiquefree_backend project.
+WSGI config for eboutique_config project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
