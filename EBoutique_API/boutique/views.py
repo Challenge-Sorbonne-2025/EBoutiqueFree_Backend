@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from apps.boutique.models import Boutique, AlerteStock, Stock
+from boutique.models import Boutique, AlerteStock, Stock
 
 @login_required
 def accueil(request):
@@ -21,3 +21,8 @@ def tableau_bord(request):
         'total_boutiques': Boutique.objects.filter(est_active=True).count()
     }
     return render(request, 'boutique/tableau_bord.html', context)
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def carte_produits(request):
+    return render(request, 'boutique/map.html')

@@ -16,8 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from boutique.views import accueil  # afficher la page d’accueil ici
 
 urlpatterns = [
+    path("", accueil, name="accueil"),  # Page d'accueil de l'application boutique
+    #path("api-auth/", include("rest_framework.urls")),  # API US5 & US6 : recherche de boutiques proches où le stock est non nul
     path("admin/", admin.site.urls),
-     path("", include('free_app.urls')),
+    path("", include('free_app.urls')),
+    path("boutique/", include('boutique.urls')), # URL de l'application boutique
 ]

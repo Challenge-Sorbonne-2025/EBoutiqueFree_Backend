@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
-
+# La ligne suivante est ajoutée uniquement pour PointField
+#(utilisation de la GeoDjango)
+from django.contrib.gis.db import models as gis_models
 User = get_user_model()
 
 # Modèle pour la table Marque
@@ -26,8 +28,8 @@ class Boutique(models.Model):
     ville = models.CharField(max_length=50)
     code_postal = models.CharField(max_length=5)  # Pour garder les zéros initiaux
     departement = models.CharField(max_length=50, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    #location = (longitude, latitude) 
+    location = gis_models.PointField(geography=True, blank=True, null=True)
     num_telephone = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
