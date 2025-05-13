@@ -116,6 +116,7 @@ git merge origin/dev
 - Utiliser des migrations pour toute modification de la base de données
 - Documenter les nouvelles fonctionnalités
 - Tester les endpoints API avant de les mettre en production
+- Pour les tests avec la connexion avec swagger, faite bien attention et separer le prefixe `Bearer` et le `token` avec un `space ( )` 
 
 ## Ressources Utiles
 
