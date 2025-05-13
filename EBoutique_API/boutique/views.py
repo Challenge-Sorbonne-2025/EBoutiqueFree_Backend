@@ -220,11 +220,12 @@ class ProduitViewSet(viewsets.ModelViewSet):
         ArchivedProduit.objects.create(
             original_id=instance.id,
             nom=instance.nom,
-            marque=instance.marque.nom,
+            marque=instance.modele.marque.nom,
             modele=instance.modele.nom,
             prix=instance.prix,
             couleur=instance.couleur,
             capacite=instance.capacite,
+            ram=instance.ram,
             archive_par=self.request.user,
             raison=self.request.data.get('raison', 'Produit deja vendu')
         )
@@ -332,6 +333,8 @@ class ArchivedProduitViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ArchivedProduit.objects.all()
     serializer_class = ArchivedProduitSerializer
     permission_classes = [EstResponsableBoutique]
+
+
 
     @swagger_auto_schema(
         operation_description="Liste tous les produits archivés",

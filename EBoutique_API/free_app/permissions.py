@@ -14,7 +14,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 
 class IsBoutiqueManager(permissions.BasePermission):
     """
-    Permission pour qu’un gestionnaire accède uniquement à ses propres boutiques.
+    Permission pour qu'un gestionnaire accède uniquement à ses propres boutiques.
     Les superusers ont tous les droits.
     """
     def has_permission(self, request, view):

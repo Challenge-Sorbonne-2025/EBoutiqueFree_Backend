@@ -39,6 +39,15 @@ class ModeleSerializer(serializers.ModelSerializer):
 # Serializers pour les utilisateurs
 # ============================================================================
 
+class UserSerializer(serializers.ModelSerializer):
+    """
+    Serializer pour les utilisateurs.
+    Inclut les informations de base de l'utilisateur.
+    """
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+
 class ResponsableSerializer(serializers.ModelSerializer):
     """
     Serializer pour les responsables de boutique.
@@ -106,15 +115,31 @@ class ProduitSerializer(serializers.ModelSerializer):
     """
     boutique_id = serializers.IntegerField(write_only=True)  # ID de la boutique pour le stock initial
     quantite_initiale = serializers.IntegerField(write_only=True, default=1, min_value=1)  # Quantité initiale en stock
+    boutiques = serializers.SerializerMethodField()  # Champ pour les informations des boutiques
 
     class Meta:
         model = Produit
         fields = '__all__'
         read_only_fields = ['user']
 
+    def get_boutiques(self, obj):
+        """
+        Récupère les informations des boutiques associées au produit via la table Stock.
+        """
+        stocks = obj.stocks.all()  # Utilise la relation inverse de Stock vers Produit
+        boutiques_info = []
+        for stock in stocks:
+            boutiques_info.append({
+                'id': stock.boutique.id,
+                'nom': stock.boutique.nom,
+                'quantite': stock.quantite
+            })
+        return boutiques_info
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['modele'] = ModeleSerializer(instance.modele).data
+        representation['user'] = UserSerializer(instance.user).data
         return representation
 
     def create(self, validated_data):
