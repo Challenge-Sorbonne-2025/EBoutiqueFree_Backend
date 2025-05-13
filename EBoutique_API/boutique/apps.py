@@ -5,4 +5,4 @@ class BoutiqueConfig(AppConfig):
     name = 'apps.boutique'
     verbose_name = "Gestion des boutiques Free"
     def ready(self):
-        import apps.boutique.signals  # Active les signaux à l'initialisation
+        import boutique.signals  # Active les signaux à l'initialisation

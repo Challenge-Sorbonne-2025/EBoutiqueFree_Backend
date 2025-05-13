@@ -2,9 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 
-# ============================================================================
-# Modèles de base pour la gestion des produits
-# ============================================================================
+User = get_user_model()
 
 class Marque(models.Model):
     """
@@ -40,27 +38,18 @@ class Modele(models.Model):
 # ============================================================================
 
 class Boutique(models.Model):
-    """
-    Modèle représentant une boutique physique.
-    Gère les informations de localisation, contact et personnel.
-    """
-    boutique_id = models.AutoField(primary_key=True)  # Identifiant unique de la boutique
-    nom_boutique = models.CharField(max_length=100)  # Nom de la boutique
-    adresse = models.TextField()  # Adresse complète
-    ville = models.CharField(max_length=50)  # Ville
-    code_postal = models.CharField(max_length=10)  # Code postal (avec zéros initiaux)
-    departement = models.CharField(max_length=50, blank=True, null=False)  # Département
-    longitude = models.DecimalField(max_digits=12, decimal_places=9, blank=True, null=False)  # Coordonnée GPS
-    latitude = models.DecimalField(max_digits=12, decimal_places=9, blank=True, null=False)  # Coordonnée GPS
-    num_telephone = models.CharField(max_length=20, blank=True, null=True, unique=True)  # Numéro de téléphone unique
-    email = models.EmailField(blank=True, null=True, unique=True)  # Email unique
-    responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='boutiques_responsable')  # Responsable principal
-    gestionnaires = models.ManyToManyField(User, related_name='boutiques_gestionnaire', blank=True)  # Équipe de gestion
-    date_creation = models.DateTimeField(auto_now_add=True)  # Date de création automatique
-    date_maj = models.DateTimeField(auto_now=True)  # Date de dernière modification automatique
-
-    class Meta:
-        db_table = 'tb_boutique'  # Nom personnalisé de la table
+    nom = models.CharField(max_length=100)
+    adresse = models.TextField()
+    ville = models.CharField(max_length=50)
+    code_postal = models.CharField(max_length=5)  # Pour garder les zéros initiaux
+    departement = models.CharField(max_length=50, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    num_telephone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_maj = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.nom_boutique} - {self.ville} ({self.code_postal})"

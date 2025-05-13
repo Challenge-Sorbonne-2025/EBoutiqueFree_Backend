@@ -1,0 +1,21 @@
+<div id="map" style="height: 500px;"></div>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<script>
+  const map = L.map('map').setView([48.85, 2.35], 12);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  fetch("/boutique/api/recherche-produits/?lat=48.85&lon=2.35&rayon=10")
+    .then(res => res.json())
+    .then(data => {
+      data.forEach(item => {
+        const marker = L.marker([48.85, 2.35])  // Amélioration possible : stocker lat/lon dans l'API
+          .addTo(map)
+          .bindPopup(`<b>${item.produit}</b><br>${item.boutique}<br>${item.ville}<br>Quantité: ${item.quantite}`);
+      });
+    });
+</script>
