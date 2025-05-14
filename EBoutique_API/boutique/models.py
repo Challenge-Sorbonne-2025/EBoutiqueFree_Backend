@@ -64,17 +64,3 @@ class Stock(models.Model):
 
     def __str__(self):
         return f"{self.produit} @ {self.boutique} - {self.quantite} en stock"
-
-# ✅ Modèle pour générer une alerte quand le stock est bas ou en rupture
-class AlerteStock(models.Model):
-    TYPE_CHOICES = [
-        ('FAIBLE', 'Stock faible'),
-        ('RUPTURE', 'Rupture de stock'),
-    ]
-    stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
-    type_alerte = models.CharField(max_length=10, choices=TYPE_CHOICES)
-    date_creation = models.DateTimeField(auto_now_add=True)
-    lue = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.type_alerte} - {self.stock}"

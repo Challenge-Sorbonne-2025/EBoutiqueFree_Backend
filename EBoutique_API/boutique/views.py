@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from boutique.models import Boutique, AlerteStock, Stock
+from boutique.models import Boutique, Stock
 
 @login_required
 def accueil(request):
@@ -25,4 +25,15 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def carte_produits(request):
-    return render(request, 'boutique/map.html')
+    boutiques = []
+
+    for b in Boutique.objects.all():
+        produits = [f"{s.produit.nom} ({s.quantite})" for s in b.stocks.select_related("produit")]
+        boutiques.append({
+            "nom": b.nom,
+            "latitude": b.location.y if b.location else 0,
+            "longitude": b.location.x if b.location else 0,
+            "produits": ", ".join(produits)
+        })
+
+    return render(request, "boutique/map.html", {"boutiques": boutiques})

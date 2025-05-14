@@ -1,41 +1,33 @@
 from django.test import TestCase
-# from boutique.models import Boutique
-# Create your tests here.
+from boutique.models import Boutique, Produit, Marque, Modele, Stock
 from django.contrib.gis.geos import Point
 from rest_framework.test import APIClient
-from boutique.models import Boutique, Produit, Stock, Marque, Modele
 
-class RechercheProduitAPITest(TestCase):
+class CarteProduitsTest(TestCase):
     def setUp(self):
-        self.client = APIClient()
-        self.marque = Marque.objects.create(nom="Samsung")
-        self.modele = Modele.objects.create(nom="S21", marque=self.marque)
-        self.boutique = Boutique.objects.create(
+        marque = Marque.objects.create(marque="Samsung")
+        modele = Modele.objects.create(modele="S21", marque=marque)
+        boutique = Boutique.objects.create(
             nom="Boutique Test",
-            adresse="123 rue Test",
             ville="Paris",
             code_postal="75000",
-            location=Point(2.35, 48.85),
+            adresse="123 rue de Paris",
+            location=Point(2.3522, 48.8566)
         )
-        self.produit = Produit.objects.create(
+        produit = Produit.objects.create(
             nom="Galaxy S21",
-            marque=self.marque,
-            modele=self.modele,
+            marque=marque,
+            modele=modele,
             prix=599.99,
             couleur="Noir",
-            capacite=128,
+            capacite=128
         )
-        Stock.objects.create(
-            boutique=self.boutique,
-            produit=self.produit,
-            quantite=10
-        )
+        Stock.objects.create(boutique=boutique, produit=produit, quantite=5)
 
-    def test_recherche_produits(self):
-        url = "/boutique/api/recherche-produits/?lat=48.85&lon=2.35&rayon=10"
-        response = self.client.get(url)
+    def test_boutiques_api(self):
+        client = APIClient()
+        response = client.get("/boutique/api/boutiques-produits/")
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["produit"], "Galaxy S21")
-        self.assertEqual(data[0]["boutique"], "Boutique Test")
+        self.assertEqual(data[0]["nom"], "Boutique Test")
