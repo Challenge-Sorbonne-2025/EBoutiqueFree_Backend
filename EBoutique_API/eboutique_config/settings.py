@@ -9,6 +9,11 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+# Clé accessible par : os.getenv('GOOGLE_MAPS_API_KEY')
 
 from pathlib import Path
 
@@ -82,7 +87,7 @@ DATABASES = {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'eboutique',              
         'USER': 'postgres',              
-        'PASSWORD': '',                  
+        'PASSWORD': '12345',                  
         'HOST': 'localhost',
         'PORT': '5432',
     }

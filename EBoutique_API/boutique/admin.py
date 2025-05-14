@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from boutique.models import Boutique, Produit, Stock, AlerteStock, Marque, Modele
+from boutique.models import Boutique, Produit, Stock, Marque, Modele
 
 # --- Boutique ---
 @admin.register(Boutique)
@@ -54,23 +54,6 @@ class StockAdmin(admin.ModelAdmin):
             return format_html('<span style="color: orange; font-weight: bold;">FAIBLE</span>')
         return format_html('<span style="color: green;">OK</span>')
     statut_stock.short_description = "Statut"
-
-# --- AlerteStock ---
-@admin.register(AlerteStock)
-class AlerteStockAdmin(admin.ModelAdmin):
-    list_display = ('stock', 'type_alerte', 'date_creation', 'lue', 'alerte_en_cours')
-    list_filter = ('type_alerte', 'lue')
-    readonly_fields = ('date_creation',)
-    actions = ['marquer_comme_lue']
-
-    def marquer_comme_lue(self, request, queryset):
-        queryset.update(lue=True)
-    marquer_comme_lue.short_description = "Marquer comme lue"
-
-    def alerte_en_cours(self, obj):
-        return not obj.lue
-    alerte_en_cours.boolean = True
-    alerte_en_cours.short_description = "En alerte ?"
 
 # --- Marque ---
 @admin.register(Marque)

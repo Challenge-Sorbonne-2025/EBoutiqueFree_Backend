@@ -34,6 +34,8 @@ def recherche_produits_proches(request):
                 "modele": produit.modele.nom,
                 "prix": float(produit.prix),
                 "quantite": stock.quantite,
+                "lat": boutique.location.y,
+                "lon": boutique.location.x,
             })
 
     return Response(resultats)
