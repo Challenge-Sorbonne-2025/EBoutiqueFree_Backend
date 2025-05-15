@@ -54,14 +54,14 @@ class EstResponsableBoutique(permissions.BasePermission):
         # Si l'objet est une boutique
         if hasattr(obj, 'responsable'):
             return obj.responsable == request.user
-            
+                    
         # Si l'objet est un produit ou un stock
         if hasattr(obj, 'boutique'):
             return obj.boutique.responsable == request.user
             
         return False
 
-class EstGestionnaireBoutique(permissions.BasePermission):
+class PeuModifierUserProfile(permissions.BasePermission):
     """
     Permission pour les gestionnaires de boutique :
     - Un gestionnaire ne peut agir que sur les produits des boutiques où il travaille
@@ -74,7 +74,7 @@ class EstGestionnaireBoutique(permissions.BasePermission):
         if not request.user.is_authenticated:
             return False
         try:
-            return request.user.profile.role == 'GESTIONNAIRE'
+            return request.user.profile.role == 'RESPONSABLE'
         except:
             return False
 
@@ -86,41 +86,10 @@ class EstGestionnaireBoutique(permissions.BasePermission):
         if not request.user.is_authenticated:
             return False
         try:
-            # Si l'objet est une boutique
-            if hasattr(obj, 'gestionnaires'):
-                return request.user in obj.gestionnaires.all()
-            # Si l'objet est un produit ou un stock
-            if hasattr(obj, 'boutique'):
-                return request.user in obj.boutique.gestionnaires.all()
-            return False
-        except:
-            return False
-
-class PeutModifierProduit(permissions.BasePermission):
-    """
-    Permission pour la modification des produits :
-    - Un responsable peut modifier les produits de sa boutique
-    - Un gestionnaire peut modifier les produits des boutiques où il travaille
-    """
-    def has_permission(self, request, view):
-        if not request.user.is_authenticated:
-            return False
-        try:
-            role = request.user.userrole.role
-            return role in ['RESPONSABLE', 'GESTIONNAIRE']
-        except:
-            return False
-
-    def has_object_permission(self, request, view, obj):
-        if not request.user.is_authenticated:
-            return False
-        try:
-            role = request.user.userrole.role
-            if role == 'RESPONSABLE':
-                return obj.boutique.responsable == request.user
-            elif role == 'GESTIONNAIRE':
-                return request.user in obj.boutique.gestionnaires.all()
-            return False
+            if request.user.profile.role == 'RESPONSABLE':
+                return True
+            else:
+                return False
         except:
             return False
 
@@ -158,7 +127,7 @@ class EstGestionnaireOuResponsable(permissions.BasePermission):
                 return False
 
             try:
-                boutique = Boutique.objects.get(id=boutique_id)
+                boutique = Boutique.objects.get(boutique_id=boutique_id)
                 if role == 'RESPONSABLE':
                     return boutique.responsable == request.user
                 elif role == 'GESTIONNAIRE':

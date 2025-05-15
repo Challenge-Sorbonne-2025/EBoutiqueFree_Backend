@@ -18,6 +18,12 @@ admin.site.register(User, CustomUserAdmin)
 
 @admin.register(ArchivedUser)
 class ArchivedUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'role', 'date_archivage')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'role','telephone',  'date_archivage')
     search_fields = ('username', 'email')
-    list_filter = ('role', 'date_archivage')
+    list_filter = ('username', 'date_archivage')
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('profile_id', 'user', 'role', 'date_creation')
+    search_fields = ('user__username', 'user__email')
+    list_filter = ('role', 'date_creation')

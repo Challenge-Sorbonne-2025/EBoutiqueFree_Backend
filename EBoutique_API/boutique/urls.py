@@ -10,7 +10,10 @@ router.register(r'produits', views.ProduitViewSet)
 router.register(r'stocks', views.StockViewSet)
 router.register(r'archives-produits', views.ArchivedProduitViewSet)
 router.register(r'archives-boutiques', views.ArchivedBoutiqueViewSet)
+router.register(r'historique-ventes', views.HistoriqueVentesViewSet)
+# router.register(r'demandes-suppression', views.DemandeSuppressionProduitViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
 ]
+# 

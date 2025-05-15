@@ -2,12 +2,15 @@ from rest_framework import viewsets
 from .models import UserProfile, ArchivedUser
 from drf_yasg.utils import swagger_auto_schema
 from .serializers import UserProfileSerializer, ArchivedUserSerializer
-from boutique.permissions import EstResponsableBoutique
+from boutique.permissions import EstResponsableBoutique, PeuModifierUserProfile
 
+# ============================================================================
+# Gestion des utilisateurs
+# ============================================================================
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [EstResponsableBoutique]
+    permission_classes = [PeuModifierUserProfile]
 
     @swagger_auto_schema(
         operation_description="Liste tous les utilisateurs",
@@ -58,6 +61,9 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         )
         user.delete()  # Cela supprimera aussi le profil à cause de la relation CASCADE
 
+# ============================================================================
+# Historique des utilisateurs archivés
+# ============================================================================  
 class ArchivedUserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ArchivedUser.objects.all()
     serializer_class = ArchivedUserSerializer

@@ -6,27 +6,27 @@ from .models import Boutique, Produit, Marque, Modele, Stock, ArchivedBoutique, 
 
 @admin.register(Marque)
 class MarqueAdmin(admin.ModelAdmin):
-    list_display = ('nom',)
-    search_fields = ('nom',)
-    ordering = ('nom',)
+    list_display = ('marque_id', 'marque')
+    search_fields = ('marque',)
+    ordering = ('marque',)
 
 @admin.register(Modele)
 class ModeleAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'marque')
-    list_filter = ('marque',)
-    search_fields = ('nom', 'marque__nom')
+    list_display = ('modele_id', 'modele', 'marque')
+    list_filter = ('modele',)
+    search_fields = ('modele', 'marque__marque')
     autocomplete_fields = ['marque']
 
 @admin.register(Boutique)
 class BoutiqueAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'ville', 'code_postal', 'responsable', 'date_creation')
+    list_display = ('boutique_id', 'nom_boutique', 'ville', 'code_postal', 'responsable', 'date_creation')
     list_filter = ('ville', 'departement')
-    search_fields = ('nom', 'ville', 'code_postal', 'responsable__username')
+    search_fields = ('nom_boutique', 'ville', 'code_postal', 'responsable__username')
     readonly_fields = ('date_creation', 'date_maj')
     filter_horizontal = ('gestionnaires',)
     fieldsets = (
         ('Informations principales', {
-            'fields': ('nom', 'responsable', 'gestionnaires')
+            'fields': ('nom_boutique', 'responsable', 'gestionnaires')
         }),
         ('Localisation', {
             'fields': ('adresse', 'ville', 'code_postal', 'departement', 'longitude', 'latitude')
@@ -42,14 +42,14 @@ class BoutiqueAdmin(admin.ModelAdmin):
 
 @admin.register(Produit)
 class ProduitAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'modele', 'prix', 'couleur', 'capacite', 'ram')
+    list_display = ('produit_id', 'nom_produit', 'modele', 'prix', 'couleur', 'capacite', 'ram')
     list_filter = ('modele', 'couleur')
-    search_fields = ('nom', 'modele__nom', 'modele__marque__nom')
+    search_fields = ('nom_produit', 'modele__modele', 'modele__marque__marque')
     autocomplete_fields = ['modele']
     readonly_fields = ('user',)
     fieldsets = (
         ('Informations principales', {
-            'fields': ('nom', 'modele', 'prix')
+            'fields': ('nom_produit', 'modele', 'prix')
         }),
         ('Caractéristiques', {
             'fields': ('couleur', 'capacite', 'ram')
@@ -71,9 +71,9 @@ class StockInline(admin.TabularInline):
 
 @admin.register(Stock)
 class StockAdmin(admin.ModelAdmin):
-    list_display = ('boutique', 'produit', 'quantite', 'seuil_alerte')
+    list_display = ('stock_id', 'boutique', 'produit', 'quantite', 'seuil_alerte')
     list_filter = ('boutique', 'produit__modele__marque')
-    search_fields = ('boutique__nom', 'produit__nom')
+    search_fields = ('boutique__nom_boutique', 'produit__nom_produit')
     autocomplete_fields = ['boutique', 'produit']
     list_editable = ('quantite', 'seuil_alerte')
 
@@ -88,14 +88,14 @@ class StockAdmin(admin.ModelAdmin):
 
 @admin.register(ArchivedProduit)
 class ArchivedProduitAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'marque', 'modele', 'prix', 'date_archivage', 'archive_par')
-    list_filter = ('date_archivage', 'marque')
-    search_fields = ('nom', 'marque', 'modele')
+    list_display = ('nom_produit',  'modele', 'prix', 'date_archivage', 'archive_par')
+    list_filter = ('date_archivage', 'modele')
+    search_fields = ('nom_produit', 'modele__modele', 'modele__marque__marque')
     readonly_fields = ('date_archivage', 'archive_par')
 
 @admin.register(ArchivedBoutique)
 class ArchivedBoutiqueAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'ville', 'code_postal', 'date_archivage', 'archive_par')
+    list_display = ('nom_boutique', 'ville', 'code_postal', 'date_archivage', 'archive_par')
     list_filter = ('date_archivage', 'ville')
-    search_fields = ('nom', 'ville', 'code_postal')
+    search_fields = ('nom_boutique', 'ville', 'code_postal')
     readonly_fields = ('date_archivage', 'archive_par')
