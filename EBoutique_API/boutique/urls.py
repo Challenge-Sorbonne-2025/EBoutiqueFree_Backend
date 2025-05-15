@@ -1,4 +1,5 @@
 from django.urls import path
+from boutique import api_views
 from boutique import views
 from .views import tableau_bord, accueil, carte_produits
 from .api_views import recherche_produits_proches # Import API séparé

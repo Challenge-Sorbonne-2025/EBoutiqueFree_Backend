@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
                     models.CharField(
                         choices=[
                             ("RESPONSABLE", "Responsable de la boutique"),
-                            ("GESTIONNAIRE", "Gestionnaire de laboutique"),
+                            ("GESTIONNAIRE", "Gestionnaire de la boutique"),
                         ],
                         max_length=20,
                     ),

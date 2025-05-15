@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 # Create your models here.
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
@@ -34,7 +34,7 @@ class Boutique(models.Model):
     location = gis_models.PointField(geography=True, blank=True, null=True)
     num_telephone = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
-    responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='boutiques_free_app')
     date_creation = models.DateTimeField(auto_now_add=True)
     date_maj = models.DateTimeField(auto_now=True)
 
