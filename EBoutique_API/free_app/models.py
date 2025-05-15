@@ -1,47 +1,68 @@
 from django.db import models
-from django.contrib.auth.models import User
 
-# ============================================================================
-# Modèle pour stocker les informations de profil des utilisateurs.
-# ============================================================================
-class UserProfile(models.Model):
-    """
-    Modèle pour stocker les informations de profil des utilisateurs.
-    """
-    profile_id = models.AutoField(primary_key=True) # Identifiant unique du profil    
-    ROLE_CHOICES = [
-        ('RESPONSABLE', 'Responsable de la boutique'),
-        ('GESTIONNAIRE', 'Gestionnaire de laboutique'),]
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile') # Relation avec l'utilisateur
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES) # Rôle de l'utilisateur
-    telephone = models.CharField(max_length=20, blank=True, null=True, unique=True) # Numéro de téléphone de l'utilisateur
-    date_creation = models.DateTimeField(auto_now_add=True) # Date de création de l'utilisateur
-    date_maj = models.DateTimeField(auto_now=True) # Date de mise à jour de l'utilisateur   
+# Create your models here.
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
+# La ligne suivante est ajoutée uniquement pour PointField
+#(utilisation de la GeoDjango)
+from django.contrib.gis.db import models as gis_models
+User = get_user_model()
 
-    class Meta:
-        db_table = 'tb_user_profile' # Nom personnalisé de la table pour les profils des utilisateurs
+# Modèle pour la table Marque
+class Marque(models.Model):
+    nom = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.role}"
-    
+        return self.nom
 
-# ============================================================================
-# Modèle pour archiver les utilisateurs.
-# ============================================================================
-class ArchivedUser(models.Model):
-    original_id = models.IntegerField() # ID original de l'utilisateur
-    username = models.CharField(max_length=150, unique=True) # Nom d'utilisateur de l'utilisateur
-    email = models.EmailField(unique=True) # Email de l'utilisateur
-    first_name = models.CharField(max_length=150) # Prénom de l'utilisateur
-    last_name = models.CharField(max_length=150) # Nom de l'utilisateur
-    role = models.CharField(max_length=20) # Rôle de l'utilisateur
-    telephone = models.CharField(max_length=20, blank=True, null=True) # Numéro de téléphone de l'utilisateur
-    date_archivage = models.DateTimeField(auto_now_add=True) # Date d'archivage de l'utilisateur        
-    archive_par = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='users_archives') # Utilisateur qui a archivé l'utilisateur
-    raison = models.TextField() # Raison de l'archivage de l'utilisateur
-
-    class Meta:
-        db_table = 'tb_user_archive' # Nom personnalisé de la table pour l'historique des utilisateurs
+# Modèle pour la table Modele
+class Modele(models.Model):
+    nom = models.CharField(max_length=50)
+    marque = models.ForeignKey(Marque, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Archive: {self.username} (ID original: {self.original_id})"
+        return f"{self.marque} - {self.nom}"
+
+# Modèle pour la table Boutique
+class Boutique(models.Model):
+    nom = models.CharField(max_length=100)
+    adresse = models.TextField()
+    ville = models.CharField(max_length=50)
+    code_postal = models.CharField(max_length=5)  # Pour garder les zéros initiaux
+    departement = models.CharField(max_length=50, blank=True, null=True)
+    #location = (longitude, latitude) 
+    location = gis_models.PointField(geography=True, blank=True, null=True)
+    num_telephone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_maj = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.nom} - {self.ville} ({self.code_postal})"
+
+# Modèle pour la table Produit
+class Produit(models.Model):
+    nom = models.CharField(max_length=100)
+    marque = models.ForeignKey(Marque, on_delete=models.CASCADE)  # Changé en ForeignKey
+    modele = models.ForeignKey(Modele, on_delete=models.CASCADE)
+    prix = models.DecimalField(max_digits=10, decimal_places=2)
+    couleur = models.CharField(max_length=50)
+    capacite = models.DecimalField(max_digits=10, decimal_places=2)
+    image = models.ImageField(upload_to='produits/', null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.nom} ({self.marque})" 
+
+# Modèle pour la table Stock
+class Stock(models.Model):
+    boutique = models.ForeignKey(Boutique, on_delete=models.CASCADE, related_name='stocks')
+    produit = models.ForeignKey(Produit, on_delete=models.CASCADE, related_name='stocks')
+    quantite = models.IntegerField(validators=[MinValueValidator(0)], default=0)
+    seuil_alerte = models.PositiveIntegerField(default=5)
+
+    class Meta:
+        unique_together = ('boutique', 'produit')
+
+    def __str__(self):
+        return f"{self.produit} @ {self.boutique} - {self.quantite} en stock"

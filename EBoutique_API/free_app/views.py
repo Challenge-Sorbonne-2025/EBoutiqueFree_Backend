@@ -1,85 +1,40 @@
-from rest_framework import viewsets
-from .models import UserProfile, ArchivedUser
-from drf_yasg.utils import swagger_auto_schema
-from .serializers import UserProfileSerializer, ArchivedUserSerializer
-from boutique.permissions import EstResponsableBoutique, PeuModifierUserProfile
+from django.shortcuts import render
 
-# ============================================================================
-# Gestion des utilisateurs
-# ============================================================================
-class UserProfileViewSet(viewsets.ModelViewSet):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
-    permission_classes = [PeuModifierUserProfile]
+# Create your views here.
+from django.http import JsonResponse
+from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
+from EBoutique_API.utils.geocoding import geocode_address
+from boutique.models import Boutique
+from free_app.models import Produit
 
-    @swagger_auto_schema(
-        operation_description="Liste tous les utilisateurs",
-        responses={200: UserProfileSerializer(many=True)}
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-    
-    @swagger_auto_schema(
-        operation_description="Récupère un utilisateur par son ID",
-        responses={200: UserProfileSerializer()}
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-    
-    @swagger_auto_schema(
-        operation_description="Crée un nouvel utilisateur",
-        request_body=UserProfileSerializer,
-        responses={201: UserProfileSerializer()}
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-    
-    @swagger_auto_schema(
-        operation_description="Met à jour un utilisateur existant",
-        request_body=UserProfileSerializer,
-        responses={200: UserProfileSerializer()}
-    )
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-    
-    
-    @swagger_auto_schema(
-        operation_description="Archiver un utilisateur existant",
-        responses={204: None}
-    )
-    def perform_destroy(self, instance):
-        user = instance.user
-        # Archiver l'utilisateur avant de le supprimer
-        ArchivedUser.objects.create(
-            original_id=user.id,
-            username=user.username,
-            email=user.email,
-            role=instance.role,
-            telephone=instance.telephone,
-            archive_par=self.request.user,
-            raison=self.request.data.get('raison', 'Non spécifiée')
+def recherche_produits_par_adresse(request):
+    adresse = request.GET.get('adresse')
+    rayon_km = float(request.GET.get('rayon', 5))  # rayon par défaut = 5 km
+
+    if not adresse:
+        return JsonResponse({'error': 'Adresse manquante'}, status=400)
+
+    lat, lng = geocode_address(adresse)
+    if lat is None or lng is None:
+        return JsonResponse({'error': 'Adresse invalide ou non trouvée'}, status=400)
+
+    point_utilisateur = Point(lng, lat, srid=4326)
+
+    boutiques_proches = Boutique.objects.annotate(
+        distance=Distance('location', point_utilisateur)
+    ).filter(distance__lte=rayon_km * 1000).order_by('distance')
+
+    resultats = []
+    for boutique in boutiques_proches:
+        produits_dispos = Product.objects.filter(boutique=boutique, stock__gt=0).values(
+            'name', 'price', 'stock'
         )
-        user.delete()  # Cela supprimera aussi le profil à cause de la relation CASCADE
+        resultats.append({
+            'boutique': boutique.nom,
+            'adresse': boutique.adresse,
+            'distance_km': round(boutique.distance.km, 2),
+            'produits': list(produits_dispos)
+        })
 
-# ============================================================================
-# Historique des utilisateurs archivés
-# ============================================================================  
-class ArchivedUserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ArchivedUser.objects.all()
-    serializer_class = ArchivedUserSerializer
-    permission_classes = [EstResponsableBoutique]
-
-    @swagger_auto_schema(
-        operation_description="Liste tous les utilisateurs archivés",
-        responses={200: ArchivedUserSerializer(many=True)}
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-    
-    @swagger_auto_schema(
-        operation_description="Récupère un utilisateur archivé par son ID",
-        responses={200: ArchivedUserSerializer()}
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-    
+    return JsonResponse(resultats, safe=False)
