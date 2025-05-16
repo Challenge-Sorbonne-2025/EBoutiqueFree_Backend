@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
-from EBoutique_API.utils.geocoding import geocode_address
+from eboutique_config.utils.geocoding import geocode_address
 from boutique.models import Boutique
 from free_app.models import Produit
 

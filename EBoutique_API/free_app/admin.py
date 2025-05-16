@@ -1,29 +1,48 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import User
-from .models import UserProfile, ArchivedUser
+from .models import (
+    Marque,
+    Modele,
+    Boutique,
+    Produit,
+    Stock,
+    UserProfile,
+    ArchivedUser
+)
 
-class UserProfileInline(admin.StackedInline):
-    model = UserProfile
-    can_delete = False
-    verbose_name_plural = 'Profile'
+@admin.register(Marque)
+class MarqueAdmin(admin.ModelAdmin):
+    list_display = ('nom',)
 
-# Extend the existing UserAdmin
-class CustomUserAdmin(UserAdmin):
-    inlines = (UserProfileInline,)
+@admin.register(Modele)
+class ModeleAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'marque')
+    list_filter = ('marque',)
 
-# Unregister the default User admin and register our custom one
-admin.site.unregister(User)
-admin.site.register(User, CustomUserAdmin)
+@admin.register(Boutique)
+class BoutiqueAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'ville', 'code_postal', 'departement', 'responsable')
+    search_fields = ('nom', 'ville', 'code_postal')
+    list_filter = ('ville', 'departement')
 
-@admin.register(ArchivedUser)
-class ArchivedUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'role','telephone',  'date_archivage')
-    search_fields = ('username', 'email')
-    list_filter = ('username', 'date_archivage')
+@admin.register(Produit)
+class ProduitAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'marque', 'modele', 'prix', 'couleur', 'capacite')
+    list_filter = ('marque', 'modele')
+    search_fields = ('nom',)
+
+@admin.register(Stock)
+class StockAdmin(admin.ModelAdmin):
+    list_display = ('produit', 'boutique', 'quantite', 'seuil_alerte')
+    list_filter = ('boutique',)
+    search_fields = ('produit__nom', 'boutique__nom')
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('profile_id', 'user', 'role', 'date_creation')
-    search_fields = ('user__username', 'user__email')
-    list_filter = ('role', 'date_creation')
+    list_display = ('user', 'telephone', 'role', 'date_creation', 'date_archivage')
+    list_filter = ('role',)
+    search_fields = ('user__username',)
+
+@admin.register(ArchivedUser)
+class ArchivedUserAdmin(admin.ModelAdmin):
+    list_display = ('user', 'date_archivage', 'raison')
+    search_fields = ('user__username',)

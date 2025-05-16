@@ -1,11 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import User
-# Create your models here.
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
-# La ligne suivante est ajoutée uniquement pour PointField
-#(utilisation de la GeoDjango)
 from django.contrib.gis.db import models as gis_models
+
 User = get_user_model()
 
 # Modèle pour la table Marque
@@ -30,7 +27,6 @@ class Boutique(models.Model):
     ville = models.CharField(max_length=50)
     code_postal = models.CharField(max_length=5)  # Pour garder les zéros initiaux
     departement = models.CharField(max_length=50, blank=True, null=True)
-    #location = (longitude, latitude) 
     location = gis_models.PointField(geography=True, blank=True, null=True)
     num_telephone = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
@@ -44,7 +40,7 @@ class Boutique(models.Model):
 # Modèle pour la table Produit
 class Produit(models.Model):
     nom = models.CharField(max_length=100)
-    marque = models.ForeignKey(Marque, on_delete=models.CASCADE)  # Changé en ForeignKey
+    marque = models.ForeignKey(Marque, on_delete=models.CASCADE)
     modele = models.ForeignKey(Modele, on_delete=models.CASCADE)
     prix = models.DecimalField(max_digits=10, decimal_places=2)
     couleur = models.CharField(max_length=50)
@@ -52,7 +48,7 @@ class Produit(models.Model):
     image = models.ImageField(upload_to='produits/', null=True, blank=True)
 
     def __str__(self):
-        return f"{self.nom} ({self.marque})" 
+        return f"{self.nom} ({self.marque})"
 
 # Modèle pour la table Stock
 class Stock(models.Model):
@@ -66,3 +62,23 @@ class Stock(models.Model):
 
     def __str__(self):
         return f"{self.produit} @ {self.boutique} - {self.quantite} en stock"
+
+# Modèle UserProfile
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    telephone = models.CharField(max_length=20, blank=True)
+    role = models.CharField(max_length=20, choices=[('admin', 'Admin'), ('user', 'User')], default='user')
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_archivage = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Profil de {self.user.username}"
+
+# Modèle ArchivedUser (exemple basique)
+class ArchivedUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='archived_profile')
+    date_archivage = models.DateTimeField(auto_now_add=True)
+    raison = models.TextField(blank=True, null=True)  # Exemple de champ pour la raison d'archivage
+
+    def __str__(self):
+        return f"Utilisateur archivé: {self.user.username}"

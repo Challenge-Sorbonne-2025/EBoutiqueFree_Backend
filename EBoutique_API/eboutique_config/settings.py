@@ -59,7 +59,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "EBoutique_API.urls"
+ROOT_URLCONF = "eboutique_config.urls"
 
 TEMPLATES = [
     {
@@ -76,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "EBoutique_API.wsgi.application"
+WSGI_APPLICATION = 'eboutique_config.wsgi.application'
 
 
 # Database
