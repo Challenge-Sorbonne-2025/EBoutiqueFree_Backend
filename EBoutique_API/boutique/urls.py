@@ -1,19 +1,17 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from . import views
+from django.urls import path
+from boutique import views
+from . import api_views
+from .views import tableau_bord, accueil, carte_produits
+from .api_views import recherche_produits_proches # Import API séparé
 
-router = DefaultRouter()
-router.register(r'marques', views.MarqueViewSet)
-router.register(r'modeles', views.ModeleViewSet)
-router.register(r'boutiques', views.BoutiqueViewSet)
-router.register(r'produits', views.ProduitViewSet)
-router.register(r'stocks', views.StockViewSet)
-router.register(r'archives-produits', views.ArchivedProduitViewSet)
-router.register(r'archives-boutiques', views.ArchivedBoutiqueViewSet)
-router.register(r'historique-ventes', views.HistoriqueVentesViewSet)
-# router.register(r'demandes-suppression', views.DemandeSuppressionProduitViewSet)
+app_name = 'boutique'
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('tableau-bord/', views.tableau_bord, name='tableau_bord'),
+# API US5 & US6 : recherche de boutiques proches où le stock est non nul
+    path('api/recherche-produits/', recherche_produits_proches, name='recherche_produits_proches'),
+    path('carte/', views.carte_produits, name='carte_produits'),
+    path('carte/', views.carte_produits, name='map_produits'),
+    path("api/boutiques-produits/", api_views.boutiques_produits_json, name="boutiques_produits_json"),
+    path('accueil/', accueil, name='accueil'),
 ]
-# 
