@@ -3,7 +3,7 @@ from django.contrib.gis.db.models.functions import Distance
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-
+from django.http import JsonResponse
 from .models import Boutique, Stock
 
 @api_view(['GET'])
@@ -39,3 +39,22 @@ def recherche_produits_proches(request):
             })
 
     return Response(resultats)
+@api_view(['GET'])
+def boutiques_produits_json(request):
+    data = []
+    for boutique in Boutique.objects.all():
+        produits = boutique.stocks.filter(quantite__gt=0).select_related('produit')
+        data.append({
+            'nom': boutique.nom,
+            'ville': boutique.ville,
+            'latitude': boutique.location.y,
+            'longitude': boutique.location.x,
+            'produits': [
+                {
+                    'nom': stock.produit.nom,
+                    'prix': float(stock.produit.prix),
+                    'quantite': stock.quantite
+                } for stock in produits
+            ]
+        })
+    return JsonResponse(data, safe=False)
