@@ -2,57 +2,51 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Carte des Boutiques</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>Carte des Boutiques - Google Maps</title>
     <style>
-        #map { height: 600px; width: 100%; }
-        #filtre { margin: 10px; }
+        #map {
+            height: 90vh;
+            width: 100%;
+        }
     </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC6iCA5P0ycIXnG_UMuxZWOYoA5fxK_XjA&callback=initMap" async defer></script>
 </head>
 <body>
-    <h2>Carte des boutiques Free avec produits</h2>
-
-    <input id="filtre" type="text" placeholder="Filtrer par nom de produit..." onkeyup="filtrerProduits()">
-
+    <h2>Carte des boutiques (Google Maps)</h2>
     <div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const map = L.map('map').setView([48.8566, 2.3522], 12); // Vue sur Paris par défaut
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
+        async function initMap() {
+            const response = await fetch("/api/boutiques-produits/");
+            const boutiques = await response.json();
 
-        let markers = [];
-
-        function afficherBoutiques(produitsFiltrés) {
-            markers.forEach(marker => map.removeLayer(marker));
-            markers = [];
-
-            produitsFiltrés.forEach(b => {
-                const produitsText = b.produits.map(p => 
-                    `<li>${p.nom} (${p.quantite} ex.) - ${p.prix}€</li>`).join("");
-                const popup = `<strong>${b.nom}</strong><br>${b.ville}<br><ul>${produitsText}</ul>`;
-                const marker = L.marker([b.location.lat, b.location.lon]).bindPopup(popup).addTo(map);
-                markers.push(marker);
-            });
-        }
-
-        let boutiques = [];
-
-        fetch("/boutique/api/boutiques-produits/")
-            .then(res => res.json())
-            .then(data => {
-                boutiques = data;
-                afficherBoutiques(boutiques);
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 12,
+                center: { lat: boutiques[0]?.lat || 0, lng: boutiques[0]?.lon || 0 },
             });
 
-        function filtrerProduits() {
-            const filtre = document.getElementById("filtre").value.toLowerCase();
-            const filtrés = boutiques.filter(b =>
-                b.produits.some(p => p.nom.toLowerCase().includes(filtre))
-            );
-            afficherBoutiques(filtrés);
+            boutiques.forEach(item => {
+                const marker = new google.maps.Marker({
+                    position: { lat: item.lat, lng: item.lon },
+                    map: map,
+                    title: `${item.boutique} - ${item.produit}`,
+                });
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div>
+                            <strong>${item.boutique}</strong> - ${item.ville}<br>
+                            <em>${item.produit} (${item.marque} ${item.modele})</em><br>
+                            Prix : ${item.prix} €<br>
+                            Stock : ${item.quantite}
+                        </div>
+                    `
+                });
+
+                marker.addListener("click", () => {
+                    infoWindow.open(map, marker);
+                });
+            });
         }
     </script>
 </body>
