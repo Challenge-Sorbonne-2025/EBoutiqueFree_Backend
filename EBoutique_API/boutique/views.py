@@ -24,19 +24,29 @@ def tableau_bord(request):
         'total_boutiques': Boutique.objects.count()
     }
     return render(request, 'boutique/tableau_bord.html', context)
-from django.contrib.auth.decorators import login_required
 
 @login_required
 def carte_produits(request):
+    query = request.GET.get("produit", ""
     boutiques = []
-
     for b in Boutique.objects.all():
-        produits = [f"{s.produit.nom} ({s.quantite})" for s in b.stocks.select_related("produit")]
-        boutiques.append({
-            "nom": b.nom,
-            "latitude": b.location.y if b.location else 0,
-            "longitude": b.location.x if b.location else 0,
-            "produits": ", ".join(produits)
-        })
+        # Filtrage des stocks par produit si recherche
+        stocks = b.stocks.select_related("produit")
+        if query:
+            stocks = stocks.filter(produit__nom__icontains=query)
 
-    return render(request, "boutique/map.html", {"boutiques": boutiques})
+        if stocks.exists():
+            produits = [f"{s.produit.nom} ({s.quantite})" for s in stocks]
+            boutiques.append({
+                "nom": b.nom,
+                "latitude": b.location.y if b.location else 0,
+                "longitude": b.location.x if b.location else 0,
+                "produits": produits,
+                "ville": b.ville,
+            })
+
+    context = {
+        "boutiques": boutiques,
+        "query": query
+    }
+    return render(request, "boutique/map.html", context)
