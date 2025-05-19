@@ -70,6 +70,10 @@ class PeuModifierUserProfile(permissions.BasePermission):
         # Permettre GET à tout le monde
         if request.method in permissions.SAFE_METHODS:
             return True
+        
+        if request.user.is_superuser:
+            return True
+        
         # Pour les autres méthodes, vérifier si c'est un gestionnaire
         if not request.user.is_authenticated:
             return False
