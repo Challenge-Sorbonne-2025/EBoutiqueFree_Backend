@@ -7,11 +7,14 @@ from .api_views import recherche_produits_proches # Import API séparé
 app_name = 'boutique'
 
 urlpatterns = [
+    # Vue tableau de bord de l'application
     path('tableau-bord/', views.tableau_bord, name='tableau_bord'),
-# API US5 & US6 : recherche de boutiques proches où le stock est non nul
+    # Recherche de boutiques proches où le stock est non nul
     path('api/recherche-produits/', recherche_produits_proches, name='recherche_produits_proches'),
-    path('carte/', views.carte_produits, name='carte_produits'),
-    path('carte/', views.carte_produits, name='map_produits'),
+    # Page de la carte via l'API Google Maps
+    path("map/", views.map_view, name="google_map_view"),
+    # Coordonnées des boutiques et leurs produits utilisées par la carte
     path("api/boutiques-produits/", api_views.boutiques_produits_json, name="boutiques_produits_json"),
+    # Page d'accueil de l'application boutique
     path('accueil/', accueil, name='accueil'),
 ]
