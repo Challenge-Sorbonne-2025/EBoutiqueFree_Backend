@@ -3,58 +3,47 @@ from django.contrib.gis.db.models.functions import Distance
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from django.http import JsonResponse
-from .models import Boutique, Stock
 
+from .models import Boutique
+
+# API : Recherche des 5 boutiques les plus proches avec stock non nul
 @api_view(['GET'])
-def recherche_produits_proches(request):
+def boutiques_produits_json(request):
     try:
+        # Lecture des coordonnées GPS depuis la requête
         lat = float(request.GET.get("lat"))
         lon = float(request.GET.get("lon"))
-        rayon = float(request.GET.get("rayon", 10))  # Rayon par défaut : 10 km
     except (TypeError, ValueError):
-        return Response({"error": "Paramètres GPS invalides."}, status=400)
+        return Response({"error": "Coordonnées invalides"}, status=status.HTTP_400_BAD_REQUEST)
 
     user_location = Point(lon, lat, srid=4326)
 
+    # Boutiques dans un rayon de 10km, triées par distance
     boutiques_proches = Boutique.objects.filter(
-        location__distance_lte=(user_location, rayon * 1000)
+        location__distance_lte=(user_location, 10000)
     ).annotate(distance=Distance("location", user_location)).order_by("distance")
 
     resultats = []
     for boutique in boutiques_proches:
-        for stock in boutique.stocks.filter(quantite__gt=0).select_related('produit__marque', 'produit__modele'):
-            produit = stock.produit
+        # Filtrer les stocks avec quantite > 0
+        stocks = boutique.stocks.filter(quantite__gt=0).select_related("produit", "produit__marque", "produit__modele")
+        for stock in stocks:
             resultats.append({
                 "boutique": boutique.nom,
                 "ville": boutique.ville,
-                "distance_km": round(boutique.distance.km, 2),
-                "produit": produit.nom,
-                "marque": produit.marque.nom,
-                "modele": produit.modele.nom,
-                "prix": float(produit.prix),
-                "quantite": stock.quantite,
                 "lat": boutique.location.y,
                 "lon": boutique.location.x,
+                "distance_km": round(boutique.distance.km, 2),
+                "produit": stock.produit.nom,
+                "marque": stock.produit.marque.nom,
+                "modele": stock.produit.modele.nom,
+                "prix": float(stock.produit.prix),
+                "quantite": stock.quantite,
             })
-
+            break  # On suppose une recherche d'un seul produit à la fois par boutique
+        if len(resultats) >= 5:
+            break  # Affichage des 5 premiers résultats
+    if not resultats:
+        return Response({"message": "Aucun produit trouvé dans un rayon de 10 km."}, status=status.HTTP_404_NOT_FOUND)
+   
     return Response(resultats)
-@api_view(['GET'])
-def boutiques_produits_json(request):
-    data = []
-    for boutique in Boutique.objects.all():
-        produits = boutique.stocks.filter(quantite__gt=0).select_related('produit')
-        data.append({
-            'nom': boutique.nom,
-            'ville': boutique.ville,
-            'latitude': boutique.location.y,
-            'longitude': boutique.location.x,
-            'produits': [
-                {
-                    'nom': stock.produit.nom,
-                    'prix': float(stock.produit.prix),
-                    'quantite': stock.quantite
-                } for stock in produits
-            ]
-        })
-    return JsonResponse(data, safe=False)
