@@ -50,6 +50,10 @@ pipeline {
         }
 
         stage('🐳 Docker build') {
+
+            environment {
+                PATH = "/opt/homebrew/bin:$PATH"
+            }
             steps {
                 echo "📦 Building Docker image ${IMAGE_NAME}..."
                 sh '''
