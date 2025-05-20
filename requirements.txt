@@ -2,7 +2,6 @@ asgiref==3.8.1
 aspose-words==25.3.0
 attrs==25.3.0
 dj-rest-auth==7.0.1
-Django==5.2
 django-bootstrap5==25.1
 django-cors-headers==4.7.0
 django-filter==25.1
