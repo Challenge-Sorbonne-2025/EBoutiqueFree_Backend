@@ -10,105 +10,153 @@
     <meta charset="UTF-8">
     <title>Carte des boutiques proches</title>
     <style>
-        /* Style de la carte */
         #map {
             height: 600px;
             width: 100%;
-            border: 1px solid #ccc;
             margin: 20px auto;
+        }
+        #controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
-    <h2 style="text-align:center;">Boutiques les plus proches avec stock disponible</h2>
+    <h2 style="text-align:center;">Trouvez les boutiques les plus proches avec du stock disponible</h2>
 
+    <!-- Zone de contrôle : saisir adresse OU utiliser la position -->
+    <div id="controls">
+        <input type="text" id="adresse" placeholder="Entrez votre adresse">
+        <button onclick="geocodeAdresse()">Rechercher par adresse</button>
+        <button onclick="initMap(true)">Utiliser ma position actuelle</button>
+    </div>
+
+    <!-- Conteneur de la carte -->
     <div id="map"></div>
 
     <script>
-        // Fonction principale appelée une fois que la carte est chargée
-        function initMap() {
-            // Vérifie si la géolocalisation est supportée par le navigateur
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    const userLatLng = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
+        let map;
 
-                    // Initialise la carte centrée sur la position de l'utilisateur
-                    const map = new google.maps.Map(document.getElementById('map'), {
-                        center: userLatLng,
-                        zoom: 12
+        // Fonction principale : peut utiliser GPS (if useGPS = true) ou coordonnées passées
+        function initMap(useGPS = false, coords = null) {
+            if (useGPS) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        const userCoords = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        afficherCarteEtBoutiques(userCoords);
+                    }, () => {
+                        alert("Impossible de récupérer votre position.");
                     });
+                } else {
+                    alert("La géolocalisation n'est pas supportée par votre navigateur.");
+                }
+            } else if (coords) {
+                afficherCarteEtBoutiques(coords);
+            }
+        }
 
-                    // Marqueur pour l'utilisateur
-                    new google.maps.Marker({
-                        position: userLatLng,
-                        map: map,
-                        title: "Votre position",
-                        icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-                    });
+        // Fonction qui affiche la carte + les boutiques proches
+        function afficherCarteEtBoutiques(userCoords) {
+            // Crée la carte centrée sur la position utilisateur
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: userCoords,
+                zoom: 12
+            });
 
-                    // Appel à l'API Django pour récupérer les boutiques proches
-                    fetch(`/api/boutiques-produits/?lat=${userLatLng.lat}&lon=${userLatLng.lng}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.length === 0) {
-                                alert("Aucune boutique proche avec du stock disponible.");
-                                return;
-                            }
+            // Ajoute un marqueur pour l'utilisateur
+            new google.maps.Marker({
+                position: userCoords,
+                map: map,
+                title: "Votre position",
+                icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+            });
 
-                            data.forEach((boutique, index) => {
-                                const boutiqueLatLng = {
-                                    lat: boutique.lat,
-                                    lng: boutique.lon
-                                };
+            // Appel de l’API Django pour récupérer les boutiques proches
+            fetch(`/api/boutiques-produits/?lat=${userCoords.lat}&lon=${userCoords.lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        alert("Aucune boutique proche avec du stock.");
+                        return;
+                    }
 
-                                const infoContent = `
-                                    <div>
-                                        <strong>${index + 1}. ${boutique.boutique}</strong><br>
-                                        Ville : ${boutique.ville}<br>
-                                        Produit : ${boutique.produit}<br>
-                                        Marque : ${boutique.marque}<br>
-                                        Modèle : ${boutique.modele}<br>
-                                        Prix : ${boutique.prix} €<br>
-                                        Quantité : ${boutique.quantite}<br>
-                                        Distance : ${boutique.distance_km} km
-                                    </div>
-                                `;
+                    // Affiche les boutiques avec marqueurs et info-bulles
+                    data.forEach((boutique, index) => {
+                        const boutiqueLatLng = {
+                            lat: boutique.lat,
+                            lng: boutique.lon
+                        };
 
-                                const marker = new google.maps.Marker({
-                                    position: boutiqueLatLng,
-                                    map: map,
-                                    label: `${index + 1}`,  // Numérote les boutiques
-                                    title: boutique.boutique
-                                });
+                        const infoContent = `
+                            <div>
+                                <strong>${index + 1}. ${boutique.boutique}</strong><br>
+                                Ville : ${boutique.ville}<br>
+                                Produit : ${boutique.produit}<br>
+                                Marque : ${boutique.marque}<br>
+                                Modèle : ${boutique.modele}<br>
+                                Prix : ${boutique.prix} €<br>
+                                Quantité : ${boutique.quantite}<br>
+                                Distance : ${boutique.distance_km} km
+                            </div>
+                        `;
 
-                                const infoWindow = new google.maps.InfoWindow({
-                                    content: infoContent
-                                });
-
-                                marker.addListener('click', () => {
-                                    infoWindow.open(map, marker);
-                                });
-                            });
-                        })
-                        .catch(error => {
-                            console.error("Erreur lors de la récupération des données : ", error);
+                        const marker = new google.maps.Marker({
+                            position: boutiqueLatLng,
+                            map: map,
+                            label: `${index + 1}`,
+                            title: boutique.boutique
                         });
 
-                }, function() {
-                    alert("Impossible de récupérer votre position.");
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: infoContent
+                        });
+
+                        marker.addListener('click', () => {
+                            infoWindow.open(map, marker);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la récupération des boutiques :", error);
                 });
-            } else {
-                alert("La géolocalisation n'est pas supportée par ce navigateur.");
+        }
+
+        // Fonction de géocodage de l'adresse saisie
+        function geocodeAdresse() {
+            const adresse = document.getElementById("adresse").value;
+            if (!adresse) {
+                alert("Veuillez entrer une adresse.");
+                return;
             }
+
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ address: adresse }, (results, status) => {
+                if (status === "OK") {
+                    const location = results[0].geometry.location;
+                    const coords = {
+                        lat: location.lat(),
+                        lng: location.lng()
+                    };
+                    initMap(false, coords);
+                } else {
+                    alert("Adresse non trouvée : " + status);
+                }
+            });
         }
     </script>
 
-    <!-- Intégration de la Clé API Google Maps -->
+    <!-- Intégration Clé pour l'API de Google Maps -->
     <script async
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC6iCA5P0ycIXnG_UMuxZWOYoA5fxK_XjA&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=
+AIzaSyC6iCA5P0ycIXnG_UMuxZWOYoA5fxK_XjA&callback=()=>{}">
     </script>
 </body>
 </html>
