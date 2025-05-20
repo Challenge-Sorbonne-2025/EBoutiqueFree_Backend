@@ -15,11 +15,11 @@ pipeline {
             }
         }
 
-        stage('🔑 Inject .env file') {
+        stage('🔑 Écriture du .env depuis les credentials Jenkins') {
             steps {
-                echo "🔐 Récupération du fichier .env sécurisé depuis Jenkins Credentials..."
-                withCredentials([file(credentialsId: 'dotenv-secret-id', variable: 'DOTENV_FILE')]) {
-                    sh 'cp $DOTENV_FILE .env'
+                echo "✍️ Écriture du fichier .env depuis Jenkins credentials..."
+                withCredentials([string(credentialsId: '.env', variable: 'ENV_CONTENT')]) {
+                    writeFile file: '.env', text: "${ENV_CONTENT}"
                 }
             }
         }
@@ -39,7 +39,7 @@ pipeline {
 
         stage('✅ Run Django tests') {
             steps {
-                echo "🚀 Running tests..."
+                echo "🚀 Running Django tests..."
                 sh '''
                     . ${VENV_DIR}/bin/activate
                     export PYTHONPATH=$PWD
@@ -65,14 +65,14 @@ pipeline {
 
     post {
         always {
-            echo '🧼 Cleaning up...'
+            echo '🧼 Suppression du fichier .env...'
             sh 'rm -f .env'
         }
         success {
-            echo '🎉 CI pipeline completed successfully!'
+            echo '✅ Pipeline terminé avec succès.'
         }
         failure {
-            echo '❌ CI pipeline failed!'
+            echo '❌ Pipeline échoué.'
         }
     }
 }
