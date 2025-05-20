@@ -5,6 +5,7 @@ pipeline {
         VENV_DIR = 'venv'
         IMAGE_NAME = "shop_app:${BUILD_NUMBER}"
         PYTHONUNBUFFERED = 1
+        ENV_CONTENT = credentials('django-env') // 💡 Chargement du .env depuis Jenkins
     }
 
     stages {
@@ -13,6 +14,13 @@ pipeline {
             steps {
                 echo "🔄 Cloning the repository..."
                 checkout scm
+            }
+        }
+
+        stage('🔑 Write .env') {
+            steps {
+                echo "✍️ Writing environment variables to .env file..."
+                writeFile file: '.env', text: "${ENV_CONTENT}"
             }
         }
 
@@ -35,6 +43,7 @@ pipeline {
                 sh '''
                     . ${VENV_DIR}/bin/activate
                     export PYTHONPATH=$PWD
+                    export $(cat .env | xargs)  # 💡 Charge les variables d'environnement
                     python3 EBoutique_API/manage.py test
                 '''
             }
@@ -49,14 +58,12 @@ pipeline {
                 '''
             }
         }
-
-
-  
-  }
+    }
 
     post {
         always {
             echo '🧼 Cleaning up (if needed)...'
+            sh 'rm -f .env'  // 🔐 Supprime le .env après le build
         }
         success {
             echo '🎉 CI pipeline completed successfully!'
