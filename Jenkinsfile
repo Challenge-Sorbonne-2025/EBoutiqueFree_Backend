@@ -63,11 +63,7 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            echo '🧼 Suppression du fichier .env...'
-            sh 'rm -f .env'
-        }
+
         success {
             echo '✅ Pipeline terminé avec succès.'
         }
