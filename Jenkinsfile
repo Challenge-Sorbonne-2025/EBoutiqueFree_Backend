@@ -5,7 +5,7 @@ pipeline {
         VENV_DIR = 'venv'
         IMAGE_NAME = "shop_app:${BUILD_NUMBER}"
         PYTHONUNBUFFERED = 1
-        ENV_CONTENT = credentials('django-env') // 💡 Chargement du .env depuis Jenkins
+        ENV_CONTENT = credentials('.env') // 💡 Chargement du .env depuis Jenkins
     }
 
     stages {
