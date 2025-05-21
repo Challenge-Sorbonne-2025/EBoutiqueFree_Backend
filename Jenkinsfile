@@ -20,6 +20,7 @@ pipeline {
             steps {
                 echo "📄 Copie du fichier .env local dans le workspace Jenkins..."
                 sh '''
+                    set -e
                     cp "/Users/etiennesene/Documents/EBoutiqueFree_Backend/.env" .env
                 '''
             }
@@ -29,6 +30,7 @@ pipeline {
             steps {
                 echo "⚙️ Création de l’environnement virtuel & installation des dépendances..."
                 sh '''
+                    set -e
                     python3 -m venv ${VENV_DIR}
                     . ${VENV_DIR}/bin/activate
                     pip install --upgrade pip
@@ -41,6 +43,7 @@ pipeline {
             steps {
                 echo "🚀 Lancement des tests Django..."
                 sh '''
+                    set -e
                     . ${VENV_DIR}/bin/activate
                     export PYTHONPATH=$PWD
                     export $(cat .env | xargs)
@@ -56,6 +59,7 @@ pipeline {
             steps {
                 echo "📦 Création de l’image Docker : ${IMAGE_NAME}"
                 sh '''
+                    set -e
                     docker build -t ${IMAGE_NAME} .
                     docker tag ${IMAGE_NAME} shop_app:latest
                 '''
@@ -69,6 +73,7 @@ pipeline {
             steps {
                 echo "🚀 Démarrage du conteneur avec les variables d’environnement..."
                 sh '''
+                    set -e
                     docker rm -f shop_container || true
                     docker run --env-file .env -d --name shop_container -p 8000:8000 ${IMAGE_NAME}
                 '''
@@ -79,7 +84,7 @@ pipeline {
     post {
         always {
             echo '🧹 Nettoyage des fichiers temporaires...'
-            sh 'rm -f .env'
+            sh 'rm -f .env || true'
         }
         success {
             echo '✅ Pipeline terminé avec succès.'
