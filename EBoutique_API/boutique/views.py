@@ -120,7 +120,7 @@ class ModeleViewSet(viewsets.ModelViewSet):
 class BoutiqueViewSet(viewsets.ModelViewSet):
     queryset = Boutique.objects.all()
     serializer_class = BoutiqueSerializer
-    permission_classes = [EstResponsableBoutique]   
+    permission_classes = [EstResponsableBoutique]
 
     @swagger_auto_schema(
         operation_description="Liste toutes les boutiques",
