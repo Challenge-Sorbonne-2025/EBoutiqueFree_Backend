@@ -16,12 +16,12 @@ pipeline {
             }
         }
 
-        stage('🔑 Générer .env temporairement') {
+        stage('📎 Copier le .env local dans le workspace') {
             steps {
-                echo "✍️ Récupération des variables d’environnement depuis Jenkins Credentials..."
-                withCredentials([string(credentialsId: '.env', variable: 'ENV_CONTENT')]) {
-                    writeFile file: '.env', text: "${ENV_CONTENT}"
-                }
+                echo "📄 Copie du fichier .env local dans le workspace Jenkins..."
+                sh '''
+                    cp "/Users/etiennesene/Documents/EBoutiqueFree_Backend/.env" .env
+                '''
             }
         }
 
@@ -51,7 +51,7 @@ pipeline {
 
         stage('🐳 Build Docker image') {
             environment {
-                PATH = "/opt/homebrew/bin:$PATH" // si Docker est installé via Homebrew
+                PATH = "/opt/homebrew/bin:$PATH"
             }
             steps {
                 echo "📦 Création de l’image Docker : ${IMAGE_NAME}"
@@ -63,6 +63,9 @@ pipeline {
         }
 
         stage('🚀 Run Docker container with .env') {
+            environment {
+                PATH = "/opt/homebrew/bin:$PATH"
+            }
             steps {
                 echo "🚀 Démarrage du conteneur avec les variables d’environnement..."
                 sh '''
