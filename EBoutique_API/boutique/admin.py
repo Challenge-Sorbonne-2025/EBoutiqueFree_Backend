@@ -6,12 +6,12 @@ from boutique.models import Boutique, Produit, Stock, Marque, Modele
 # --- Boutique ---
 @admin.register(Boutique)
 class BoutiqueAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'ville', 'code_postal', 'responsable_link', 'nombre_produits')
+    list_display = ('nom_boutique', 'ville', 'code_postal', 'responsable', 'nombre_produits')
     list_filter = ('ville',)
-    search_fields = ('nom', 'ville', 'code_postal')
+    search_fields = ('nom_boutique', 'ville', 'code_postal')
     raw_id_fields = ('responsable',)
 
-    def responsable_link(self, obj):
+    def responsable(self, obj):
         if obj.responsable:
             return format_html(
                 '<a href="/admin/auth/user/{}/change/">{}</a>',
@@ -19,7 +19,7 @@ class BoutiqueAdmin(admin.ModelAdmin):
                 obj.responsable.get_full_name() or obj.responsable.username
             )
         return "-"
-    responsable_link.short_description = "Responsable"
+    responsable.short_description = "Responsable"
 
     def nombre_produits(self, obj):
         return obj.stocks.count()
@@ -28,9 +28,9 @@ class BoutiqueAdmin(admin.ModelAdmin):
 # --- Produit ---
 @admin.register(Produit)
 class ProduitAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'marque', 'modele', 'prix', 'image_preview')
-    list_filter = ('marque', 'modele')
-    search_fields = ('nom', 'marque__nom', 'modele__nom')
+    list_display = ('nom_produit', 'modele', 'prix', 'image')
+    list_filter = ('modele', 'modele__marque')
+    search_fields = ('nom_produit', 'modele__modele', 'modele__modele__marque')
 
     def image_preview(self, obj):
         if obj.image and obj.image.url:
@@ -41,8 +41,8 @@ class ProduitAdmin(admin.ModelAdmin):
 # --- Stock ---
 @admin.register(Stock)
 class StockAdmin(admin.ModelAdmin):
-    list_display = ('produit', 'boutique', 'quantite', 'seuil_alerte', 'statut_stock')
-    list_filter = ('boutique', 'produit__marque')
+    list_display = ('produit', 'boutique', 'quantite', 'seuil_alerte')
+    list_filter = ('boutique', 'produit__modele__marque')
     list_editable = ('quantite', 'seuil_alerte')
     search_fields = ('produit__nom', 'boutique__nom')
     raw_id_fields = ('produit', 'boutique')
@@ -58,12 +58,12 @@ class StockAdmin(admin.ModelAdmin):
 # --- Marque ---
 @admin.register(Marque)
 class MarqueAdmin(admin.ModelAdmin):
-    list_display = ('nom',)
-    search_fields = ('nom',)
+    list_display = ('marque',)
+    search_fields = ('marque',)
 
 # --- Modele ---
 @admin.register(Modele)
 class ModeleAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'marque')
-    search_fields = ('nom', 'marque__nom')
-    list_filter = ('marque',)
+    list_display = ('modele', 'marque')
+    search_fields = ('modele', 'marque__marque')
+    list_filter = ('modele',)

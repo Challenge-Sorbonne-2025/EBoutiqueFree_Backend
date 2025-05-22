@@ -65,21 +65,20 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 # Historique des utilisateurs archivés
 # ============================================================================  
 class ArchivedUserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ArchivedUser.objects.all()
-    serializer_class = ArchivedUserSerializer
-    permission_classes = [EstResponsableBoutique]
-
-    @swagger_auto_schema(
-        operation_description="Liste tous les utilisateurs archivés",
-        responses={200: ArchivedUserSerializer(many=True)}
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+     queryset = ArchivedUser.objects.all()
+     serializer_class = ArchivedUserSerializer
+     permission_classes = [EstResponsableBoutique]
+     @swagger_auto_schema(
+         operation_description="Liste tous les utilisateurs archivés",
+         responses={200: ArchivedUserSerializer(many=True)}
+     )
+     def list(self, request, *args, **kwargs):
+         return super().list(request, *args, **kwargs)
     
-    @swagger_auto_schema(
-        operation_description="Récupère un utilisateur archivé par son ID",
-        responses={200: ArchivedUserSerializer()}
-    )
-    def retrieve(self, request, *args, **kwargs):
+     @swagger_auto_schema(
+         operation_description="Récupère un utilisateur archivé par son ID",
+         responses={200: ArchivedUserSerializer()}
+     )
+     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
     

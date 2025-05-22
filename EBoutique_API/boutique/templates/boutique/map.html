@@ -1,9 +1,3 @@
-# This HTML file is used to display a map with nearby stores that have available stock.
-# It uses the Google Maps API to show the user's location and the locations of nearby stores.
-# The map is centered on the user's location, and markers are placed on the map for each store.
-# The stores are fetched from the Django API based on the user's latitude and longitude.
-# The map also includes an info window that displays details about each store when clicked.
-# The HTML file is structured with a head section for metadata and styles, and a body section for the content.
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -15,34 +9,48 @@
             width: 100%;
             margin: 20px auto;
         }
+
         #controls {
             text-align: center;
             margin-top: 20px;
         }
+
         input, button {
             padding: 10px;
             margin: 5px;
             font-size: 16px;
         }
+
+        #adresseInput {
+            margin-top: 10px;
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <h2 style="text-align:center;">Trouvez les boutiques les plus proches avec du stock disponible</h2>
+    <h2 style="text-align:center;">Trouver mon produit dans la boutique la plus proche</h2>
 
-    <!-- Zone de contrôle : saisir adresse OU utiliser la position -->
+    <!-- Zone de contrôle : deux boutons uniquement -->
     <div id="controls">
-        <input type="text" id="adresse" placeholder="Entrez votre adresse">
-        <button onclick="geocodeAdresse()">Rechercher par adresse</button>
-        <button onclick="initMap(true)">Utiliser ma position actuelle</button>
+        <button onclick="toggleAdresseInput()">Saisir votre adresse</button>
+
+        <div id="adresseInput">
+            <input type="text" id="adresse" placeholder="Entrez votre adresse">
+            <button onclick="geocodeAdresse()">Rechercher</button>
+        </div>
+
+        <button onclick="initMap(true)">Utiliser ma position</button>
     </div>
 
     <!-- Conteneur de la carte -->
     <div id="map"></div>
 
+    <!-- Script principal -->
     <script>
         let map;
+        let autocomplete;
 
-        // Fonction principale : peut utiliser GPS (if useGPS = true) ou coordonnées passées
+        // Initialise la carte avec position GPS ou coordonnées manuelles
         function initMap(useGPS = false, coords = null) {
             if (useGPS) {
                 if (navigator.geolocation) {
@@ -63,15 +71,13 @@
             }
         }
 
-        // Fonction qui affiche la carte + les boutiques proches
+        // Affiche la carte + les boutiques proches
         function afficherCarteEtBoutiques(userCoords) {
-            // Crée la carte centrée sur la position utilisateur
             map = new google.maps.Map(document.getElementById('map'), {
                 center: userCoords,
                 zoom: 12
             });
 
-            // Ajoute un marqueur pour l'utilisateur
             new google.maps.Marker({
                 position: userCoords,
                 map: map,
@@ -79,7 +85,6 @@
                 icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
             });
 
-            // Appel de l’API Django pour récupérer les boutiques proches
             fetch(`/api/boutiques-produits/?lat=${userCoords.lat}&lon=${userCoords.lng}`)
                 .then(response => response.json())
                 .then(data => {
@@ -88,12 +93,8 @@
                         return;
                     }
 
-                    // Affiche les boutiques avec marqueurs et info-bulles
                     data.forEach((boutique, index) => {
-                        const boutiqueLatLng = {
-                            lat: boutique.lat,
-                            lng: boutique.lon
-                        };
+                        const boutiqueLatLng = { lat: boutique.lat, lng: boutique.lon };
 
                         const infoContent = `
                             <div>
@@ -115,9 +116,7 @@
                             title: boutique.boutique
                         });
 
-                        const infoWindow = new google.maps.InfoWindow({
-                            content: infoContent
-                        });
+                        const infoWindow = new google.maps.InfoWindow({ content: infoContent });
 
                         marker.addListener('click', () => {
                             infoWindow.open(map, marker);
@@ -129,34 +128,49 @@
                 });
         }
 
-        // Fonction de géocodage de l'adresse saisie
-        function geocodeAdresse() {
-            const adresse = document.getElementById("adresse").value;
-            if (!adresse) {
-                alert("Veuillez entrer une adresse.");
-                return;
-            }
-
-            const geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ address: adresse }, (results, status) => {
-                if (status === "OK") {
-                    const location = results[0].geometry.location;
-                    const coords = {
-                        lat: location.lat(),
-                        lng: location.lng()
-                    };
-                    initMap(false, coords);
-                } else {
-                    alert("Adresse non trouvée : " + status);
-                }
+        // Active l'autocomplétion Google Places
+        function initAutocomplete() {
+            const input = document.getElementById('adresse');
+            autocomplete = new google.maps.places.Autocomplete(input, {
+                types: ['geocode'],
+                componentRestrictions: { country: 'fr' } // France uniquement
             });
+        }
+
+        // Affiche ou masque le champ adresse
+        function toggleAdresseInput() {
+            const inputDiv = document.getElementById("adresseInput");
+            inputDiv.style.display = inputDiv.style.display === "none" ? "block" : "none";
+        }
+
+        // Géocodage de l'adresse saisie (avec autocomplétion déjà active)
+        function geocodeAdresse() {
+            const place = autocomplete.getPlace();
+
+            if (!place || !place.geometry) {
+                // Si autocomplete n'a pas déclenché .getPlace(), faire un geocoding manuel
+                const adresse = document.getElementById("adresse").value;
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ address: adresse }, (results, status) => {
+                    if (status === "OK") {
+                        const location = results[0].geometry.location;
+                        const coords = { lat: location.lat(), lng: location.lng() };
+                        initMap(false, coords);
+                    } else {
+                        alert("Adresse non trouvée : " + status);
+                    }
+                });
+            } else {
+                const location = place.geometry.location;
+                const coords = { lat: location.lat(), lng: location.lng() };
+                initMap(false, coords);
+            }
         }
     </script>
 
-    <!-- Intégration Clé pour l'API de Google Maps -->
-    <script async
-        src="https://maps.googleapis.com/maps/api/js?key=
-AIzaSyC6iCA5P0ycIXnG_UMuxZWOYoA5fxK_XjA&callback=()=>{}">
+    <!-- Script Google Maps avec Places API -->
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC6iCA5P0ycIXnG_UMuxZWOYoA5fxK_XjA&libraries=places&callback=initAutocomplete">
     </script>
 </body>
 </html>

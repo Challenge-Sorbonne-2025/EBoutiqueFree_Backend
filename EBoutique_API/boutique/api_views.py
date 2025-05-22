@@ -26,14 +26,17 @@ def boutiques_produits_json(request):
     resultats = []
     for boutique in boutiques_proches:
         # Filtrer les stocks avec quantite > 0
-        stocks = boutique.stocks.filter(quantite__gt=0).select_related("produit", "produit__marque", "produit__modele")
+        stocks = boutique.stocks.filter(quantite__gt=0).select_related("produit", "produit__modele__marque", "produit__modele")
         for stock in stocks:
             resultats.append({
-                "boutique": boutique.nom,
+                "boutique": boutique.nom_boutique,
                 "ville": boutique.ville,
-                "lat": boutique.location.y,
-                "lon": boutique.location.x,
-                "distance_km": round(boutique.distance.km, 2),
+                "lat": boutique.latitude,
+                "lon": boutique.longitude,
+                "adresse": boutique.adresse,
+                "code_postal": boutique.code_postal,
+                "departement": boutique.departement,
+                # "distance_km": round(boutique.distance.km, 2),
                 "produit": stock.produit.nom,
                 "marque": stock.produit.marque.nom,
                 "modele": stock.produit.modele.nom,

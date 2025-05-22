@@ -73,6 +73,8 @@ class PeuModifierUserProfile(permissions.BasePermission):
         # Pour les autres méthodes, vérifier si c'est un gestionnaire
         if not request.user.is_authenticated:
             return False
+        if request.user.is_superuser:
+            return True
         try:
             return request.user.profile.role == 'RESPONSABLE'
         except:
@@ -85,6 +87,8 @@ class PeuModifierUserProfile(permissions.BasePermission):
         # Pour les autres méthodes, vérifier si c'est un gestionnaire de la boutique
         if not request.user.is_authenticated:
             return False
+        if request.user.is_superuser:
+            return True
         try:
             if request.user.profile.role == 'RESPONSABLE':
                 return True
