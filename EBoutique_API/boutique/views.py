@@ -122,6 +122,10 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
     serializer_class = BoutiqueSerializer
     permission_classes = [EstResponsableBoutique]
 
+    def perform_create(self, serializer):
+        # Assigner automatiquement le responsable lors de la création
+        serializer.save(responsable=self.request.user.profile)
+
     @swagger_auto_schema(
         operation_description="Liste toutes les boutiques",
         responses={200: BoutiqueSerializer(many=True)}
@@ -158,12 +162,7 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
-    
 
-    @swagger_auto_schema(
-        operation_description="Archiver une boutique",
-        responses={204: None}
-    )
     def perform_destroy(self, instance):
         # Archiver la boutique avant de la supprimer
         ArchivedBoutique.objects.create(

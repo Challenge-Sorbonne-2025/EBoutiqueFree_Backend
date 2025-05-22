@@ -51,13 +51,27 @@ class EstResponsableBoutique(permissions.BasePermission):
         if request.user.is_superuser:
             return True
             
+        # Vérifier si l'utilisateur a le bon rôle
+        if not (hasattr(request.user, 'profile') and request.user.profile.role == 'RESPONSABLE'):
+            return False
+            
         # Si l'objet est une boutique
         if hasattr(obj, 'responsable'):
-            return obj.responsable == request.user
-                    
+            # Si pas de responsable assigné (nouvelle boutique), permettre au responsable de la modifier
+            if obj.responsable is None:
+                return True
+            # Comparer avec le profile de l'utilisateur connecté
+            if hasattr(request.user, 'profile'):
+                return obj.responsable == request.user.profile
+            return False
+            
         # Si l'objet est un produit ou un stock
         if hasattr(obj, 'boutique'):
-            return obj.boutique.responsable == request.user
+            if obj.boutique.responsable is None:
+                return True
+            if hasattr(request.user, 'profile'):
+                return obj.boutique.responsable == request.user.profile
+            return False
             
         return False
 
@@ -133,9 +147,9 @@ class EstGestionnaireOuResponsable(permissions.BasePermission):
             try:
                 boutique = Boutique.objects.get(boutique_id=boutique_id)
                 if role == 'RESPONSABLE':
-                    return boutique.responsable == request.user
+                    return boutique.responsable == request.user.profile
                 elif role == 'GESTIONNAIRE':
-                    return request.user in boutique.gestionnaires.all()
+                    return request.user.profile in boutique.gestionnaires.all()
             except Boutique.DoesNotExist:
                 return False
 
@@ -166,16 +180,16 @@ class EstGestionnaireOuResponsable(permissions.BasePermission):
                 
                 if role == 'RESPONSABLE':
                     # Un responsable ne peut agir que sur les produits de sa boutique
-                    return any(stock.boutique.responsable == request.user for stock in stocks)
+                    return any(stock.boutique.responsable == request.user.profile for stock in stocks)
                 elif role == 'GESTIONNAIRE':
                     # Un gestionnaire ne peut agir que sur les produits des boutiques où il travaille
-                    return any(request.user in stock.boutique.gestionnaires.all() for stock in stocks)
+                    return any(request.user.profile in stock.boutique.gestionnaires.all() for stock in stocks)
                 return False
             
             # Si l'objet est une boutique
             if hasattr(obj, 'responsable'):
                 if role == 'RESPONSABLE':
-                    return obj.responsable == request.user
+                    return obj.responsable == request.user.profile
                 elif role == 'GESTIONNAIRE':
                     return request.user in obj.gestionnaires.all()
                 return False
@@ -183,9 +197,9 @@ class EstGestionnaireOuResponsable(permissions.BasePermission):
             # Si l'objet est un stock
             if hasattr(obj, 'boutique'):
                 if role == 'RESPONSABLE':
-                    return obj.boutique.responsable == request.user
+                    return obj.boutique.responsable == request.user.profile
                 elif role == 'GESTIONNAIRE':
-                    return request.user in obj.boutique.gestionnaires.all()
+                    return request.user.profile in obj.boutique.gestionnaires.all()
                 return False
             
             return False

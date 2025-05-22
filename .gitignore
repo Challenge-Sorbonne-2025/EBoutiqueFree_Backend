@@ -26,6 +26,9 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+EBoutique_API/free_app/migrations/000*_initial.py
+EBoutique_API/boutique/migrations/000*_initial.py
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
