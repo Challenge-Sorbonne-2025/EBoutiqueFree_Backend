@@ -27,7 +27,7 @@ class MarqueViewSet(viewsets.ModelViewSet):
     """
     queryset = Marque.objects.all()
     serializer_class = MarqueSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [EstGestionnaireOuResponsable]
 
     @swagger_auto_schema(
         operation_description="Liste toutes les marques",
@@ -75,7 +75,7 @@ class ModeleViewSet(viewsets.ModelViewSet):
     """
     queryset = Modele.objects.all()
     serializer_class = ModeleSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [EstGestionnaireOuResponsable]
 
     @swagger_auto_schema(
         operation_description="Liste tous les modèles",
