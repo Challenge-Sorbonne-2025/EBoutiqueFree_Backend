@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
+from free_app.models import UserProfile
 
 # ============================================================================
 # Modèles de base pour la gestion des produits
@@ -54,8 +55,8 @@ class Boutique(models.Model):
     latitude = models.DecimalField(max_digits=12, decimal_places=9, blank=True, null=False)  # Coordonnée GPS
     num_telephone = models.CharField(max_length=20, blank=True, null=True, unique=True)  # Numéro de téléphone unique
     email = models.EmailField(blank=True, null=True, unique=True)  # Email unique
-    responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='boutiques_responsable')  # Responsable principal
-    gestionnaires = models.ManyToManyField(User, related_name='boutiques_gestionnaire', blank=True)  # Équipe de gestion
+    responsable = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='boutiques_responsable')  # Responsable principal
+    gestionnaires = models.ManyToManyField(UserProfile, related_name='boutiques_gestionnaire', blank=True)  # Équipe de gestion
     date_creation = models.DateTimeField(auto_now_add=True)  # Date de création automatique
     date_maj = models.DateTimeField(auto_now=True)  # Date de dernière modification automatique
 

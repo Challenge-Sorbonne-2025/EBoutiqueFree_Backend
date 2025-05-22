@@ -73,7 +73,7 @@ class MarqueViewSet(viewsets.ModelViewSet):
     """
     queryset = Marque.objects.all()
     serializer_class = MarqueSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [EstGestionnaireOuResponsable]
 
     @swagger_auto_schema(
         operation_description="Liste toutes les marques",
@@ -121,7 +121,7 @@ class ModeleViewSet(viewsets.ModelViewSet):
     """
     queryset = Modele.objects.all()
     serializer_class = ModeleSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [EstGestionnaireOuResponsable]
 
     @swagger_auto_schema(
         operation_description="Liste tous les modèles",
@@ -166,7 +166,11 @@ class ModeleViewSet(viewsets.ModelViewSet):
 class BoutiqueViewSet(viewsets.ModelViewSet):
     queryset = Boutique.objects.all()
     serializer_class = BoutiqueSerializer
-    permission_classes = [EstResponsableBoutique]   
+    permission_classes = [EstResponsableBoutique]
+
+    def perform_create(self, serializer):
+        # Assigner automatiquement le responsable lors de la création
+        serializer.save(responsable=self.request.user.profile)
 
     @swagger_auto_schema(
         operation_description="Liste toutes les boutiques",
@@ -204,12 +208,7 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
-    
 
-    @swagger_auto_schema(
-        operation_description="Archiver une boutique",
-        responses={204: None}
-    )
     def perform_destroy(self, instance):
         # Archiver la boutique avant de la supprimer
         ArchivedBoutique.objects.create(
