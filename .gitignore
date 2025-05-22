@@ -138,6 +138,8 @@ ENV/
 env.bak/
 venv.bak/
 
+./EBoutique/free_app/migrations/0*.py
+./EBoutique/boutique/migrations/0*.py
 # Spyder project settings
 .spyderproject
 .spyproject
