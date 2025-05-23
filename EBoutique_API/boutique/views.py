@@ -170,7 +170,16 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         # Assigner automatiquement le responsable lors de la création
+        
         serializer.save(responsable=self.request.user.profile)
+        # calculer la localisation de la boutique
+        location = Point(float(self.request.data.get('longitude')),
+            float(self.request.data.get('latitude')),
+            # self.request.data.get('longitude'),
+            # self.request.data.get('latitude'),
+            srid=4326
+        )
+        serializer.save(location=location)
 
     @swagger_auto_schema(
         operation_description="Liste toutes les boutiques",
@@ -284,8 +293,7 @@ class ProduitViewSet(viewsets.ModelViewSet):
             return Response(
                 {"error": "Une demande de suppression est déjà en attente pour ce produit"},
                 status=status.HTTP_400_BAD_REQUEST
-            )
-        
+            )        
         # Récupérer les stocks du produit pour trouver les boutiques associées
         stocks = instance.stocks.all()
         if not stocks.exists():
@@ -528,10 +536,7 @@ class StockViewSet(viewsets.ModelViewSet):
 
     # Surcharge des méthodes pour les désactiver explicitement
     def create(self, request, *args, **kwargs):
-        return Response(
-            {"error": "La création directe d'un stock n'est pas autorisée. Veuillez utiliser l'API de produits."},
-            status=status.HTTP_405_METHOD_NOT_ALLOWED
-        )
+        return super().create(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         return Response(
