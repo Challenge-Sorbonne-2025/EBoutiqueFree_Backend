@@ -3,6 +3,11 @@ from .models import UserProfile, ArchivedUser
 from drf_yasg.utils import swagger_auto_schema
 from .serializers import UserProfileSerializer, ArchivedUserSerializer
 from boutique.permissions import EstResponsableBoutique, PeuModifierUserProfile
+from boutique.serializers import UserSerializer
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.models import User
+from rest_framework.response import Response
+from rest_framework.decorators import action
 
 # ============================================================================
 # Gestion des utilisateurs
@@ -60,6 +65,31 @@ class UserProfileViewSet(viewsets.ModelViewSet):
             raison=self.request.data.get('raison', 'Non spécifiée')
         )
         user.delete()  # Cela supprimera aussi le profil à cause de la relation CASCADE
+
+    @swagger_auto_schema(
+        operation_description="Get All Users Profiles in gestionnaires Role",
+        responses={200: UserProfileSerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def allGestionnaires(self, request, *args, **kwargs):
+        queryset = UserProfile.objects.filter(role='GESTIONNAIRE')
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+# ============================================================================
+# J'ai ajouter cette vue pour recuperer uniquement l'utilisateur connecté
+# ============================================================================
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+    
+    @swagger_auto_schema(
+        operation_description="Récupère l' utilisateur connecter par son ID",
+        responses={200: UserProfileSerializer()}
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
 # ============================================================================
 # Historique des utilisateurs archivés

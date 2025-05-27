@@ -4,6 +4,7 @@ from .models import UserProfile, ArchivedUser
 from django.contrib.auth.models import User
 
 
+
 class UserProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(write_only=True, required=True)
     email = serializers.EmailField(write_only=True, required=True)

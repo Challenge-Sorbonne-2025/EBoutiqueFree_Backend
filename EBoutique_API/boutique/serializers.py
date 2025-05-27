@@ -4,7 +4,7 @@ from .models import (
     Marque, Modele, Boutique, Produit, Stock,
     ArchivedProduit, ArchivedBoutique, HistoriqueVentes, DemandeSuppressionProduit
 )
-from free_app.models import UserProfile
+# from free_app.models import UserProfile
 from free_app.serializers import UserProfileSerializer
 
 # ============================================================================
@@ -54,7 +54,7 @@ class UserSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
 
 # ============================================================================
 # Serializers pour les modèles principaux

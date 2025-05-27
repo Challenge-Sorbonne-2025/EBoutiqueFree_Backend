@@ -6,6 +6,7 @@ from . import views
 router = DefaultRouter()
 router.register(r'users', views.UserProfileViewSet)
 router.register(r'archives-users', views.ArchivedUserViewSet)
+router.register(r'user-connect', views.UserViewSet, basename='user-connect')
 
 urlpatterns = [
     path('', include(router.urls)),
