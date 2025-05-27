@@ -22,7 +22,7 @@ def boutiques_produits_json(request):
 
     # Boutiques dans un rayon de 10km, triées par distance
     boutiques_proches = Boutique.objects.filter(
-        location__distance_lte=(user_location, 10000)
+        location__distance_lte=(user_location, 1000000)
     ).annotate(distance=Distance("location", user_location)).order_by("distance")
 
     resultats = []
