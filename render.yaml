@@ -15,9 +15,10 @@ services:
         fromDatabase:
           name: eboutique-db
           property: connectionString
+    plan: free
 
 databases:
   - name: eboutique-db
     databaseName: eboutique
     user: eboutique_user
-    plan: free
+    plan: free 
