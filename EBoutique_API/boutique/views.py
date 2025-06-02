@@ -171,15 +171,26 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Assigner automatiquement le responsable lors de la création
         
-        serializer.save(responsable=self.request.user.profile)
+
         # calculer la localisation de la boutique
         location = Point(float(self.request.data.get('longitude')),
             float(self.request.data.get('latitude')),
-            # self.request.data.get('longitude'),
-            # self.request.data.get('latitude'),
             srid=4326
         )
-        serializer.save(location=location)
+        serializer.save(responsable=self.request.user.profile,location=location)
+
+
+    def perform_update(self, serializer):
+        location = Point(float(self.request.data.get('longitude')),
+            float(self.request.data.get('latitude')),
+            srid=4326
+        )
+        save_kwargs = {}
+        if location:
+            save_kwargs['location'] = location
+            
+        serializer.save(**save_kwargs)
+       
 
     @swagger_auto_schema(
         operation_description="Liste toutes les boutiques",
@@ -211,6 +222,14 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
     
+    @swagger_auto_schema(
+        operation_description="Met à jour partiellement une boutique existante",
+        request_body=BoutiqueSerializer,
+        responses={200: BoutiqueSerializer()}
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
     @swagger_auto_schema(
         operation_description="Supprime une boutique existante",
         responses={204: None}

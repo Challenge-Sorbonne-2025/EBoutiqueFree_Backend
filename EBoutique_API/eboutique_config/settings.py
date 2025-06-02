@@ -112,11 +112,11 @@ WSGI_APPLICATION = 'eboutique_config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'eboutique',              
-        'USER': 'postgres',              
-        'PASSWORD': 'aby',                  
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME':  os.getenv('DB_NAME'),              
+        'USER':  os.getenv('DB_USER'),             
+        'PASSWORD': os.getenv('DB_PASSWORD'),                 
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': 5432,
     }
 }
 
@@ -170,8 +170,6 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-# Static files settings
-STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # or BASE_DIR / 'staticfiles'
 
 # Optional: Additional directories where Django looks for static files

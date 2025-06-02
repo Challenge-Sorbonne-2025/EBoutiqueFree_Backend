@@ -142,6 +142,8 @@ Le fichier `.env.example` est un modèle qui contient les variables d'environnem
 ## Update Database postgis
 1. install postgis extension
  ```bash
+ sudo -u postgres psql 
+ # ensuite ta la commande suivantes
  CREATE EXTENSION postgis;
  # verifie l'installation avec :
  SELECT PostGIS_Version();

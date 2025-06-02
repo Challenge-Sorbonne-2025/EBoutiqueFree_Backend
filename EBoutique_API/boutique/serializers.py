@@ -68,7 +68,7 @@ class BoutiqueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Boutique
         fields = '__all__'
-        read_only_fields = ['date_creation', 'date_maj']
+        read_only_fields = ['date_creation', 'date_maj','location']
         extra_kwargs = {
             'boutique_id': {'read_only': True}
         }
