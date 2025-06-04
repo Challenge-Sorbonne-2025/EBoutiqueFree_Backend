@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: eboutique-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: cd EBoutique_API && python manage.py migrate && python manage.py runserver 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: eboutique-db
+          property: connectionString
+    plan: free
+
+databases:
+  - name: eboutique-db
+    databaseName: eboutique
+    user: eboutique_user
+    plan: free 

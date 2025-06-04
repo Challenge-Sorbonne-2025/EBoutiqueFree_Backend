@@ -4,6 +4,8 @@ from .models import (
     Marque, Modele, Boutique, Produit, Stock,
     ArchivedProduit, ArchivedBoutique, HistoriqueVentes, DemandeSuppressionProduit
 )
+# from free_app.models import UserProfile
+from free_app.serializers import UserProfileSerializer
 
 # ============================================================================
 # Serializers pour les modèles de base
@@ -52,25 +54,7 @@ class UserSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
-
-class ResponsableSerializer(serializers.ModelSerializer):
-    """
-    Serializer pour les responsables de boutique.
-    Limite les champs aux informations essentielles.
-    """
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
-
-class GestionnaireSerializer(serializers.ModelSerializer):
-    """
-    Serializer pour les gestionnaires de boutique.
-    Utilise les mêmes champs que le ResponsableSerializer.
-    """
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
 
 # ============================================================================
 # Serializers pour les modèles principaux
@@ -84,7 +68,7 @@ class BoutiqueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Boutique
         fields = '__all__'
-        read_only_fields = ['date_creation', 'date_maj']
+        read_only_fields = ['date_creation', 'date_maj','location']
         extra_kwargs = {
             'boutique_id': {'read_only': True}
         }
@@ -95,8 +79,8 @@ class BoutiqueSerializer(serializers.ModelSerializer):
         et des gestionnaires.
         """
         representation = super().to_representation(instance)
-        representation['responsable'] = ResponsableSerializer(instance.responsable).data
-        representation['gestionnaires'] = GestionnaireSerializer(instance.gestionnaires.all(), many=True).data
+        representation['responsable'] = UserProfileSerializer(instance.responsable).data
+        representation['gestionnaires'] = UserProfileSerializer(instance.gestionnaires.all(), many=True).data
         return representation
 
     def destroy(self, instance):

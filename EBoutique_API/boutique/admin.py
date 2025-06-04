@@ -1,101 +1,69 @@
-from django.contrib import admindocs
-
-
 from django.contrib import admin
-from .models import Boutique, Produit, Marque, Modele, Stock, ArchivedBoutique, ArchivedProduit
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from boutique.models import Boutique, Produit, Stock, Marque, Modele
 
-@admin.register(Marque)
-class MarqueAdmin(admin.ModelAdmin):
-    list_display = ('marque_id', 'marque')
-    search_fields = ('marque',)
-    ordering = ('marque',)
-
-@admin.register(Modele)
-class ModeleAdmin(admin.ModelAdmin):
-    list_display = ('modele_id', 'modele', 'marque')
-    list_filter = ('modele',)
-    search_fields = ('modele', 'marque__marque')
-    autocomplete_fields = ['marque']
-
+# --- Boutique ---
 @admin.register(Boutique)
 class BoutiqueAdmin(admin.ModelAdmin):
-    list_display = ('boutique_id', 'nom_boutique', 'ville', 'code_postal', 'responsable', 'date_creation')
-    list_filter = ('ville', 'departement')
-    search_fields = ('nom_boutique', 'ville', 'code_postal', 'responsable__username')
-    readonly_fields = ('date_creation', 'date_maj')
-    filter_horizontal = ('gestionnaires',)
-    fieldsets = (
-        ('Informations principales', {
-            'fields': ('nom_boutique', 'responsable', 'gestionnaires')
-        }),
-        ('Localisation', {
-            'fields': ('adresse', 'ville', 'code_postal', 'departement', 'longitude', 'latitude')
-        }),
-        ('Contact', {
-            'fields': ('num_telephone', 'email')
-        }),
-        ('Dates', {
-            'fields': ('date_creation', 'date_maj'),
-            'classes': ('collapse',)
-        })
-    )
+    list_display = ('nom_boutique', 'ville', 'code_postal', 'responsable', 'nombre_produits')
+    list_filter = ('ville',)
+    search_fields = ('nom_boutique', 'ville', 'code_postal')
+    raw_id_fields = ('responsable',)
 
+    def responsable(self, obj):
+        if obj.responsable:
+            return format_html(
+                '<a href="/admin/auth/user/{}/change/">{}</a>',
+                obj.responsable.id,
+                obj.responsable.get_full_name() or obj.responsable.username
+            )
+        return "-"
+    responsable.short_description = "Responsable"
+
+    def nombre_produits(self, obj):
+        return obj.stocks.count()
+    nombre_produits.short_description = "Produits en stock"
+
+# --- Produit ---
 @admin.register(Produit)
 class ProduitAdmin(admin.ModelAdmin):
-    list_display = ('produit_id', 'nom_produit', 'modele', 'prix', 'couleur', 'capacite', 'ram')
-    list_filter = ('modele', 'couleur')
-    search_fields = ('nom_produit', 'modele__modele', 'modele__marque__marque')
-    autocomplete_fields = ['modele']
-    readonly_fields = ('user',)
-    fieldsets = (
-        ('Informations principales', {
-            'fields': ('nom_produit', 'modele', 'prix')
-        }),
-        ('Caractéristiques', {
-            'fields': ('couleur', 'capacite', 'ram')
-        }),
-        ('Image', {
-            'fields': ('image',)
-        }),
-        ('Métadonnées', {
-            'fields': ('user',),
-            'classes': ('collapse',)
-        })
-    )
+    list_display = ('nom_produit', 'modele', 'prix', 'image')
+    list_filter = ('modele', 'modele__marque')
+    search_fields = ('nom_produit', 'modele__modele', 'modele__modele__marque')
 
-class StockInline(admin.TabularInline):
-    model = Stock
-    extra = 1
-    min_num = 0
-    autocomplete_fields = ['produit']
+    def image_preview(self, obj):
+        if obj.image and obj.image.url:
+            return mark_safe(f'<img src="{obj.image.url}" style="max-height: 50px;"/>')
+        return "-"
+    image_preview.short_description = "Image"
 
+# --- Stock ---
 @admin.register(Stock)
 class StockAdmin(admin.ModelAdmin):
-    list_display = ('stock_id', 'boutique', 'produit', 'quantite', 'seuil_alerte')
+    list_display = ('produit', 'boutique', 'quantite', 'seuil_alerte')
     list_filter = ('boutique', 'produit__modele__marque')
-    search_fields = ('boutique__nom_boutique', 'produit__nom_produit')
-    autocomplete_fields = ['boutique', 'produit']
     list_editable = ('quantite', 'seuil_alerte')
+    search_fields = ('produit__nom', 'boutique__nom')
+    raw_id_fields = ('produit', 'boutique')
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        if request.user.is_superuser:
-            return qs
-        if hasattr(request.user, 'profile'):
-            if request.user.profile.role == 'GESTIONNAIRE':
-                return qs.filter(boutique__gestionnaires=request.user)
-        return qs.none()
+    def statut_stock(self, obj):
+        if obj.quantite == 0:
+            return format_html('<span style="color: red; font-weight: bold;">RUPTURE</span>')
+        elif obj.quantite < obj.seuil_alerte:
+            return format_html('<span style="color: orange; font-weight: bold;">FAIBLE</span>')
+        return format_html('<span style="color: green;">OK</span>')
+    statut_stock.short_description = "Statut"
 
-@admin.register(ArchivedProduit)
-class ArchivedProduitAdmin(admin.ModelAdmin):
-    list_display = ('nom_produit',  'modele', 'prix', 'date_archivage', 'archive_par')
-    list_filter = ('date_archivage', 'modele')
-    search_fields = ('nom_produit', 'modele__modele', 'modele__marque__marque')
-    readonly_fields = ('date_archivage', 'archive_par')
+# --- Marque ---
+@admin.register(Marque)
+class MarqueAdmin(admin.ModelAdmin):
+    list_display = ('marque',)
+    search_fields = ('marque',)
 
-@admin.register(ArchivedBoutique)
-class ArchivedBoutiqueAdmin(admin.ModelAdmin):
-    list_display = ('nom_boutique', 'ville', 'code_postal', 'date_archivage', 'archive_par')
-    list_filter = ('date_archivage', 'ville')
-    search_fields = ('nom_boutique', 'ville', 'code_postal')
-    readonly_fields = ('date_archivage', 'archive_par')
+# --- Modele ---
+@admin.register(Modele)
+class ModeleAdmin(admin.ModelAdmin):
+    list_display = ('modele', 'marque')
+    search_fields = ('modele', 'marque__marque')
+    list_filter = ('modele',)

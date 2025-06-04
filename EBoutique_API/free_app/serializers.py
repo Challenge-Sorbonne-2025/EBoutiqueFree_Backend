@@ -1,7 +1,38 @@
+#@ -0,0 +1,26 @@
+from rest_framework import serializers
+from boutique.models import Produit
+from django.contrib.auth.models import User
+
+class ProductSerializer(serializers.ModelSerializer):
+    created_by = serializers.ReadOnlyField(source='created_by.username')
+
+    class Meta:
+        model = Produit
+        fields = ['id', 'name', 'description', 'price', 'stock', 'created_at', 'updated_at', 'created_by']
+
+class UserSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(write_only=True)
+    products = serializers.PrimaryKeyRelatedField(many=True, queryset=Produit.objects.all(), required=False)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'password', 'products']
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            password=validated_data['password']
+        )
+        return user 
+    
+
 # free_app/serializers.py
 from rest_framework import serializers
 from .models import UserProfile, ArchivedUser
 from django.contrib.auth.models import User
+
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -63,4 +94,4 @@ class ArchivedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArchivedUser
         fields = '__all__'
-        read_only_fields = ['date_archivage', 'archive_par'] 
+        read_only_fields = ['date_archivage', 'archive_par']

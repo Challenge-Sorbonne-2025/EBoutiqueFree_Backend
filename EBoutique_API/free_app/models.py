@@ -45,3 +45,4 @@ class ArchivedUser(models.Model):
 
     def __str__(self):
         return f"Archive: {self.username} (ID original: {self.original_id})"
+

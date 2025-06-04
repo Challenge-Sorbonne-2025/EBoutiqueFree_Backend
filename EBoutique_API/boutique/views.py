@@ -1,3 +1,9 @@
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
+from geopy.geocoders import Nominatim
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -18,6 +24,46 @@ from .permissions import EstResponsableBoutique, EstGestionnaireOuResponsable
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 
+from boutique.models import Boutique, Stock
+
+from django.views.decorators.http import require_GET
+
+# Page d'accueil avec compteur de boutiques
+
+#============================================================================================================
+# =========================================  Gest de la localisation
+
+@require_GET
+def accueil(request):
+    context = {
+        'boutiques_count': Boutique.objects.count(),
+        'user': request.user
+    }
+    return render(request, 'boutique/accueil.html', context)
+
+# Tableau de bord affichant les stocks faibles
+@require_GET
+def tableau_bord(request):
+    stocks_faibles = Stock.objects.filter(quantite__lt=5).select_related('produit', 'boutique')
+
+    context = {
+        'stocks_faibles': stocks_faibles,
+        'total_boutiques': Boutique.objects.count()
+    }
+    return render(request, 'boutique/accueil.html', context)
+
+# Affichage de la carte Google Maps
+
+
+
+@require_GET
+def map_view(request):
+    # l'utilisateur peut entrer une adresse ou utiliser la géolocalisation
+    return render(request, "boutique/map.html")
+
+
+
+
 # ============================================================================
 # Gestion des marques
 # ============================================================================
@@ -27,7 +73,7 @@ class MarqueViewSet(viewsets.ModelViewSet):
     """
     queryset = Marque.objects.all()
     serializer_class = MarqueSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [EstGestionnaireOuResponsable]
 
     @swagger_auto_schema(
         operation_description="Liste toutes les marques",
@@ -75,7 +121,7 @@ class ModeleViewSet(viewsets.ModelViewSet):
     """
     queryset = Modele.objects.all()
     serializer_class = ModeleSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [EstGestionnaireOuResponsable]
 
     @swagger_auto_schema(
         operation_description="Liste tous les modèles",
@@ -120,7 +166,31 @@ class ModeleViewSet(viewsets.ModelViewSet):
 class BoutiqueViewSet(viewsets.ModelViewSet):
     queryset = Boutique.objects.all()
     serializer_class = BoutiqueSerializer
-    permission_classes = [EstResponsableBoutique]   
+    permission_classes = [EstResponsableBoutique]
+
+    def perform_create(self, serializer):
+        # Assigner automatiquement le responsable lors de la création
+        
+
+        # calculer la localisation de la boutique
+        location = Point(float(self.request.data.get('longitude')),
+            float(self.request.data.get('latitude')),
+            srid=4326
+        )
+        serializer.save(responsable=self.request.user.profile,location=location)
+
+
+    def perform_update(self, serializer):
+        location = Point(float(self.request.data.get('longitude')),
+            float(self.request.data.get('latitude')),
+            srid=4326
+        )
+        save_kwargs = {}
+        if location:
+            save_kwargs['location'] = location
+            
+        serializer.save(**save_kwargs)
+       
 
     @swagger_auto_schema(
         operation_description="Liste toutes les boutiques",
@@ -153,17 +223,20 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
     
     @swagger_auto_schema(
+        operation_description="Met à jour partiellement une boutique existante",
+        request_body=BoutiqueSerializer,
+        responses={200: BoutiqueSerializer()}
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
         operation_description="Supprime une boutique existante",
         responses={204: None}
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
-    
 
-    @swagger_auto_schema(
-        operation_description="Archiver une boutique",
-        responses={204: None}
-    )
     def perform_destroy(self, instance):
         # Archiver la boutique avant de la supprimer
         ArchivedBoutique.objects.create(
@@ -239,8 +312,7 @@ class ProduitViewSet(viewsets.ModelViewSet):
             return Response(
                 {"error": "Une demande de suppression est déjà en attente pour ce produit"},
                 status=status.HTTP_400_BAD_REQUEST
-            )
-        
+            )        
         # Récupérer les stocks du produit pour trouver les boutiques associées
         stocks = instance.stocks.all()
         if not stocks.exists():
@@ -483,10 +555,7 @@ class StockViewSet(viewsets.ModelViewSet):
 
     # Surcharge des méthodes pour les désactiver explicitement
     def create(self, request, *args, **kwargs):
-        return Response(
-            {"error": "La création directe d'un stock n'est pas autorisée. Veuillez utiliser l'API de produits."},
-            status=status.HTTP_405_METHOD_NOT_ALLOWED
-        )
+        return super().create(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         return Response(
@@ -618,4 +687,3 @@ class ArchivedBoutiqueViewSet(viewsets.ReadOnlyModelViewSet):
     )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
-
