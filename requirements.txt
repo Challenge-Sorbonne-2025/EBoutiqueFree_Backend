@@ -19,7 +19,7 @@ pillow==11.2.1
 Pygments==2.19.1
 sqlparse==0.5.3
 typing_extensions==4.13.2
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.7
 djangorestframework-simplejwt==5.3.1
 python-dotenv==1.0.1
 pillow==11.2.1
