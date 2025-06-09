@@ -29,7 +29,7 @@ pipeline {
             steps {
                 echo "⚙️ Creating virtualenv & installing requirements..."
                 sh '''
-                    python3.12 -m venv ${VENV_DIR}
+                    python3 -m venv ${VENV_DIR}
                     . ${VENV_DIR}/bin/activate
                     pip install --upgrade pip
                     pip install -r requirements.txt
@@ -44,7 +44,7 @@ pipeline {
                 sh '''
                     . ${VENV_DIR}/bin/activate
                     export PYTHONPATH=$PWD
-                    python3.12 EBoutique_API/manage.py test
+                    python3 EBoutique_API/manage.py test
                 '''
             }
         }
