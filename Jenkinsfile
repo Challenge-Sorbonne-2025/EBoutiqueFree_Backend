@@ -29,10 +29,6 @@ pipeline {
             steps {
                 echo "⚙️ Creating virtualenv & installing requirements..."
                 sh '''
-                    # S'assurer que le chemin vers pg_config est dans le PATH
-                    export PATH="/opt/homebrew/bin:$PATH"
-                    echo "🔍 Chemin pg_config : $(which pg_config)"
-                    
                     python3 -m venv ${VENV_DIR}
                     . ${VENV_DIR}/bin/activate
                     pip install --upgrade pip
