@@ -5,6 +5,7 @@ pipeline {
         VENV_DIR = 'venv'
         IMAGE_NAME = "shop_app:${BUILD_NUMBER}"
         PYTHONUNBUFFERED = 1
+        PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
     }
 
     stages {
@@ -15,7 +16,15 @@ pipeline {
                 checkout scm
             }
         }
-
+        stage('📎 Copier le .env local dans le workspace') {
+            steps {
+                echo "📄 Copie du fichier .env local dans le workspace Jenkins..."
+                sh '''
+                    set -e
+                    cp "/Users/etiennesene/Documents/EBoutiqueFree_Backend/.env" .env
+                '''
+            }
+        }
         stage('🐍 Setup Python & Install Dependencies') {
             steps {
                 echo "⚙️ Creating virtualenv & installing requirements..."
