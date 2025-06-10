@@ -10,6 +10,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+# Rendre le script exécutable
+RUN chmod +x ./entrypoint.sh
+
 # Expose le port du serveur Django
 EXPOSE  7000
 ENTRYPOINT ["sh", "./entrypoint.sh"]
