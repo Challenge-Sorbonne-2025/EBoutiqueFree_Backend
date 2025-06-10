@@ -12,5 +12,5 @@ pwd
 echo "🛠 Running migrations..."
 python3 manage.py migrate #--noinput
 
-echo "🚀 Starting development server on 0.0.0.0:8000:8000 ..."
-exec python3 manage.py runserver 0.0.0.0:8000:8000
+echo "🚀 Starting development server on 0.0.0.0:5000:5000 ..."
+exec python3 manage.py runserver 0.0.0.0:5000:5000
