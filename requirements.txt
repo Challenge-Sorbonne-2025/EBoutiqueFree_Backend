@@ -1,5 +1,5 @@
 asgiref==3.8.1
-aspose-words==25.5.0
+# aspose-words==25.5.0 binaire mac indisponible dans docker
 attrs==25.3.0
 dj-rest-auth==7.0.1
 Django==5.2
