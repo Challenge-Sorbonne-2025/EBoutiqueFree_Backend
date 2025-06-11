@@ -5,7 +5,7 @@ pipeline {
         VENV_DIR = 'venv'
         IMAGE_NAME = "shop_app:${BUILD_NUMBER}"
         PYTHONUNBUFFERED = 1
-        # PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+//        PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
     }
 
     stages {
