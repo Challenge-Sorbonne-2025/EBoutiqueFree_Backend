@@ -46,7 +46,7 @@ pipeline {
     post {
         always {
             echo '🧹 Nettoyage du workspace et containers...'
-            sh 'docker-compose down || true'
+            sh 'docker-compose --env-file .env down || true'
             cleanWs()
         }
     }
