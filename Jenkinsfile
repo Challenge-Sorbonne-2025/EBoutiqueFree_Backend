@@ -37,7 +37,7 @@ pipeline {
                     docker-compose build
                     # Récupérer l’image construite
                     docker tag shop_app:${BUILD_NUMBER} shop_app:latest
-                    docker-compose up -d
+                    docker-compose up --force-recreate -d
 
                 '''
             }
