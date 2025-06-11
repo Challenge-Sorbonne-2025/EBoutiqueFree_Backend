@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_FILE = 'docker-compose.yml'
-//        PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+        IMAGE_NAME = "shop_app:${BUILD_NUMBER}"
+        PYTHONUNBUFFERED = 1
+//      PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
     }
 
     stages {
@@ -15,38 +16,35 @@ pipeline {
             }
         }
 
-        stage('🐳 Build & Start with Docker Compose') {
+        stage('📎 Injecter le .env sécurisé') {
             steps {
-                echo "📦 Build and up containers"
+                echo "🔐 Injection du fichier .env depuis Jenkins Credentials..."
+                withCredentials([file(credentialsId: 'EBOUTIQUE_BACKEND_ENV', variable: 'DOTENV_FILE')]) {
+                    sh '''
+                        cp $DOTENV_FILE .env
+                    '''
+                }
+            }
+        }
+
+        stage('🐳 Build Docker Compose') {
+            steps {
+                echo "🐳 Build avec docker-compose..."
                 sh '''
-                    docker-compose down
+                    docker-compose down || true
                     docker-compose build
                     docker-compose up -d
                 '''
             }
         }
 
-        stage('✅ Health check') {
-            steps {
-                echo "✅ Checking if container is running"
-                sh '''
-                    docker ps
-                '''
-            }
-        }
     }
 
     post {
         always {
-            echo '🧹 Nettoyage...'
+            echo '🧹 Nettoyage du workspace et containers...'
             sh 'docker-compose down || true'
             cleanWs()
-        }
-        success {
-            echo '🎉 Pipeline terminé avec succès!'
-        }
-        failure {
-            echo '❌ Échec du pipeline.'
         }
     }
 }
