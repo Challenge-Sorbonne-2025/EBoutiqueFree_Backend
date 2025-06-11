@@ -33,11 +33,11 @@ pipeline {
                 sh '''     
                     docker-compose down || true
                     docker-compose rm -f || true
-                    # Build avec image versionnée
+                    docker rm -f ecommerce_backend || true   # <-- LA CLE !!!
                     docker-compose build
-                    # Récupérer l’image construite
                     docker tag shop_app:${BUILD_NUMBER} shop_app:latest
                     docker-compose up --force-recreate -d
+                    
 
                 '''
             }
