@@ -1,16 +1,28 @@
 version: '3.9'
 
 services:
-  ecommerce_app:
-    container_name: ecommerce_backend
-    image: shop_app:${BUILD_NUMBER}
-    build: .
+  db:
+    image: postgis/postgis:14-3.3
+    container_name: ecommerce_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
     volumes:
-      - .:/app
+      - postgres_data:/var/lib/postgresql/data
+
+  ecommerce_app:
+    build: .
+    container_name: ecommerce_backend
+    env_file: .env
+    depends_on:
+      - db
     ports:
       - "9000:9000"
-    environment:
-      - PYTHONUNBUFFERED=1
-      - PORT=9000
-      - DJANGO_SETTINGS_MODULE=config.settings
     command: ./entrypoint.sh
+
+volumes:
+  postgres_data:
