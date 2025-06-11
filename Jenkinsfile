@@ -35,7 +35,7 @@ pipeline {
                     docker rm -f ecommerce_backend || true   # <-- LA CLE !!!
                     docker-compose build
                     docker tag shop_app:${BUILD_NUMBER} shop_app:latest
-                    docker-compose up --force-recreate -d
+                    docker-compose --env-file .env up --force-recreate -d
                     
 
                 '''
