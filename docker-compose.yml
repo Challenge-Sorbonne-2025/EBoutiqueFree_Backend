@@ -19,7 +19,7 @@ services:
       context: .
       args:
         BUILD_NUMBER: ${BUILD_NUMBER}
-    image: shop_app:${BUILD_NUMBER}    # <-- c'est ici la clé !!
+    image: shop_app:${BUILD_NUMBER} 
     container_name: ecommerce_backend
     env_file: .env
     depends_on:
