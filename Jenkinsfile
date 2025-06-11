@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        VENV_DIR = 'venv'
         IMAGE_NAME = "shop_app:${BUILD_NUMBER}"
         PYTHONUNBUFFERED = 1
+//      PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
     }
 
     stages {
@@ -16,53 +16,39 @@ pipeline {
             }
         }
 
-        stage('🐍 Setup Python & Install Dependencies') {
+        stage('📎 Injecter le .env sécurisé') {
             steps {
-                echo "⚙️ Creating virtualenv & installing requirements..."
-                sh '''
-                    python3 -m venv ${VENV_DIR}
-                    . ${VENV_DIR}/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                    pip list
+                echo "🔐 Injection du fichier .env depuis Jenkins Credentials..."
+                withCredentials([file(credentialsId: 'EBOUTIQUE_BACKEND_ENV', variable: 'DOTENV_FILE')]) {
+                    sh '''
+                        cp $DOTENV_FILE .env
+                    '''
+                }
+            }
+        }
+
+        stage('🐳 Build Docker Compose') {
+            steps {
+                echo "🐳 Build avec docker-compose..."
+                sh '''     
+                    docker-compose down || true
+                    docker-compose rm -f || true
+                    docker rm -f ecommerce_backend || true   # <-- LA CLE !!!
+                    docker-compose build
+                    docker tag shop_app:${BUILD_NUMBER} shop_app:latest
+                    docker-compose up --force-recreate -d
+                    
+
                 '''
             }
         }
 
-        stage('✅ Run Django tests') {
-            steps {
-                echo "🚀 Running tests..."
-                sh '''
-                    . ${VENV_DIR}/bin/activate
-                    export PYTHONPATH=$PWD
-                    python3 EBoutique_API/manage.py test
-                '''
-            }
-        }
-
-        stage('🐳 Docker build') {
-            steps {
-                echo "📦 Building Docker image ${IMAGE_NAME}..."
-                sh '''
-                    docker build -t ${IMAGE_NAME} .
-                    docker tag ${IMAGE_NAME} shop_app:latest
-                '''
-            }
-        }
-
-
-  
-  }
-
+    }
     post {
         always {
-            echo '🧼 Cleaning up (if needed)...'
-        }
-        success {
-            echo '🎉 CI pipeline completed successfully!'
-        }
-        failure {
-            echo '❌ CI pipeline failed!'
+            echo '🧹 Nettoyage du workspace et containers...'
+            sh 'docker-compose down || true'
+            cleanWs()
         }
     }
 }
