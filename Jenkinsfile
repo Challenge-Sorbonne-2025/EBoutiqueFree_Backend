@@ -44,7 +44,17 @@ pipeline {
         }
 
     }
-
+    
+    stage('🚀 Run Docker container') {
+        steps {
+            echo "🚀 Démarrage du conteneur..."
+            sh '''
+                docker rm -f ecommerce_backend || true
+                docker run -d --name ecommerce_backend -p 9000:9000 shop_app:${BUILD_NUMBER}
+            '''
+        }
+    }
+        
     post {
         always {
             echo '🧹 Nettoyage du workspace et containers...'
