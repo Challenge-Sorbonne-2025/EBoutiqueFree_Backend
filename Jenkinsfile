@@ -32,8 +32,13 @@ pipeline {
                 echo "🐳 Build avec docker-compose..."
                 sh '''     
                     docker-compose down || true
+                    # Build avec image versionnée
                     docker-compose build
+        
+                    # Récupérer l’image construite
+                    docker tag shop_app:${BUILD_NUMBER} shop_app:latest
                     docker-compose up -d
+
                 '''
             }
         }
