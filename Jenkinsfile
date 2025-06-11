@@ -31,9 +31,9 @@ pipeline {
             steps {
                 echo "🐳 Build avec docker-compose..."
                 sh '''
-                    docker-compose down || true
-                    export BUILD_NUMBER=${BUILD_NUMBER}
-                    docker-compose build --build-arg BUILD_NUMBER=${BUILD_NUMBER}
+                    docker-compose down || true         
+                    echo "BUILD_NUMBER=${BUILD_NUMBER}" > .env
+                    docker-compose build
                     docker-compose up -d
                 '''
             }
