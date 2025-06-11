@@ -30,9 +30,8 @@ pipeline {
         stage('🐳 Build Docker Compose') {
             steps {
                 echo "🐳 Build avec docker-compose..."
-                sh '''
-                    docker-compose down || true         
-                    echo "BUILD_NUMBER=${BUILD_NUMBER}" > .env
+                sh '''     
+                    docker-compose down || true
                     docker-compose build
                     docker-compose up -d
                 '''
