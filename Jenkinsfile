@@ -2,9 +2,7 @@ pipeline {
     agent any
 
     environment {
-        VENV_DIR = 'venv'
-        IMAGE_NAME = "shop_app:${BUILD_NUMBER}"
-        PYTHONUNBUFFERED = 1
+        COMPOSE_FILE = 'docker-compose.yml'
 //        PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
     }
 
@@ -16,62 +14,39 @@ pipeline {
                 checkout scm
             }
         }
-        stage('📎 Copier le .env local dans le workspace') {
+
+        stage('🐳 Build & Start with Docker Compose') {
             steps {
-                echo "📄 Copie du fichier .env local dans le workspace Jenkins..."
+                echo "📦 Build and up containers"
                 sh '''
-                    set -e
-                    cp "/Users/etiennesene/Documents/EBoutiqueFree_Backend/.env" .env
-                '''
-            }
-        }
-        stage('🐍 Setup Python & Install Dependencies') {
-            steps {
-                echo "⚙️ Creating virtualenv & installing requirements..."
-                sh '''
-                    python3 -m venv ${VENV_DIR}
-                    . ${VENV_DIR}/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                    pip list
+                    docker-compose down
+                    docker-compose build
+                    docker-compose up -d
                 '''
             }
         }
 
-        stage('✅ Run Django tests') {
+        stage('✅ Health check') {
             steps {
-                echo "🚀 Running tests..."
+                echo "✅ Checking if container is running"
                 sh '''
-                    . ${VENV_DIR}/bin/activate
-                    export PYTHONPATH=$PWD
-                    python3 EBoutique_API/manage.py test
+                    docker ps
                 '''
             }
         }
-
-        stage('🐳 Docker build') {
-            steps {
-                echo "📦 Building Docker image ${IMAGE_NAME}..."
-                sh '''
-                    docker build -t ${IMAGE_NAME} .
-                    docker tag ${IMAGE_NAME} shop_app:latest
-                '''
-            }
-        }
-
-
-  
-  }
+    }
 
     post {
         always {
-            echo '🧼 Cleaning up (if needed)...'
+            echo '🧹 Nettoyage...'
+            sh 'docker-compose down || true'
+            cleanWs()
         }
         success {
-            echo '🎉 CI pipeline completed successfully!'
+            echo '🎉 Pipeline terminé avec succès!'
         }
         failure {
-            echo '❌ CI pipeline failed!'
+            echo '❌ Échec du pipeline.'
         }
     }
 }
