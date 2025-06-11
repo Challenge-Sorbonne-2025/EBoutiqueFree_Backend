@@ -15,7 +15,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   ecommerce_app:
-    build: .
+    build:
+      context: .
+      args:
+        BUILD_NUMBER: ${BUILD_NUMBER}
+    image: shop_app:${BUILD_NUMBER}    # <-- c'est ici la clé !!
     container_name: ecommerce_backend
     env_file: .env
     depends_on:
