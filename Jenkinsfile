@@ -5,6 +5,7 @@ pipeline {
         IMAGE_NAME = "shop_app:${BUILD_NUMBER}"
         PYTHONUNBUFFERED = 1
 //      PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+        //docker-compose up -d
     }
 
     stages {
@@ -37,7 +38,6 @@ pipeline {
         
                     # Récupérer l’image construite
                     docker tag shop_app:${BUILD_NUMBER} shop_app:latest
-//                  docker-compose up -d
                     docker run -d --name ecommerce_backend -p 9000:9000 shop_app:${BUILD_NUMBER}
 
                 '''
