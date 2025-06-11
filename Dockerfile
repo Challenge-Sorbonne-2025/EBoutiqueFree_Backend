@@ -1,5 +1,6 @@
 FROM python:3.12-slim
 
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     libpq-dev gcc python3-dev musl-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -7,9 +8,19 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 COPY requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-# Expose le port du serveur Django
-EXPOSE  7000
-ENTRYPOINT ["sh", "./entrypoint.sh"]
+
+# Rendre le script exécutable (sur Linux)
+RUN chmod +x ./entrypoint.sh
+
+# Port exposé (optionnel en docker-compose)
+EXPOSE 5000
+
+ENTRYPOINT ["./entrypoint.sh"]
+
+
+#ENTRYPOINT ["sh", "./entrypoint.sh"]
+
