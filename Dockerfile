@@ -17,7 +17,7 @@ COPY . .
 RUN chmod +x ./entrypoint.sh
 
 # Port exposé (optionnel en docker-compose)
-EXPOSE 5000
+EXPOSE 8000
 
 ENTRYPOINT ["./entrypoint.sh"]
 
