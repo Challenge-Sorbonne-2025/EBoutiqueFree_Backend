@@ -30,3 +30,5 @@ djangorestframework-gis==1.2.0
 GDAL==3.6.2
 pyproj==3.7.1
 shapely==2.1.1
+geographiclib==2.0
+geopy==2.4.1
