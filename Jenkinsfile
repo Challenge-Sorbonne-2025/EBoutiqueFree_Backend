@@ -37,24 +37,14 @@ pipeline {
         
                     # Récupérer l’image construite
                     docker tag shop_app:${BUILD_NUMBER} shop_app:latest
-                    docker-compose up -d
+//                  docker-compose up -d
+                    docker run -d --name ecommerce_backend -p 9000:9000 shop_app:${BUILD_NUMBER}
 
                 '''
             }
         }
 
     }
-    
-    stage('🚀 Run Docker container') {
-        steps {
-            echo "🚀 Démarrage du conteneur..."
-            sh '''
-                docker rm -f ecommerce_backend || true
-                docker run -d --name ecommerce_backend -p 9000:9000 shop_app:${BUILD_NUMBER}
-            '''
-        }
-    }
-        
     post {
         always {
             echo '🧹 Nettoyage du workspace et containers...'
