@@ -32,7 +32,8 @@ pipeline {
                 echo "🐳 Build avec docker-compose..."
                 sh '''
                     docker-compose down || true
-                    docker-compose build
+                    export BUILD_NUMBER=${BUILD_NUMBER}
+                    docker-compose build --build-arg BUILD_NUMBER=${BUILD_NUMBER}
                     docker-compose up -d
                 '''
             }
