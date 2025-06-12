@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
 
 from rest_framework.permissions import AllowAny
 
@@ -32,41 +33,12 @@ import io
 from django.db import transaction
 from rest_framework.parsers import MultiPartParser, FormParser
 
-# Page d'accueil avec compteur de boutiques
-
-#============================================================================================================
-# =========================================  Gest de la localisation
-
-@require_GET
-def accueil(request):
-    context = {
-        'boutiques_count': Boutique.objects.count(),
-        'user': request.user
-    }
-    return render(request, 'boutique/accueil.html', context)
-
-# Tableau de bord affichant les stocks faibles
-@require_GET
-def tableau_bord(request):
-    stocks_faibles = Stock.objects.filter(quantite__lt=5).select_related('produit', 'boutique')
-
-    context = {
-        'stocks_faibles': stocks_faibles,
-        'total_boutiques': Boutique.objects.count()
-    }
-    return render(request, 'boutique/accueil.html', context)
-
-# Affichage de la carte Google Maps
-
 
 
 @require_GET
 def map_view(request):
     # l'utilisateur peut entrer une adresse ou utiliser la géolocalisation
     return render(request, "boutique/map.html")
-
-
-
 
 # ============================================================================
 # Gestion des marques
@@ -415,7 +387,111 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
                 'erreur': f'Erreur lors du traitement du fichier: {str(e)}'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
   
-   
+
+    @swagger_auto_schema(
+        operation_description="Recherche de boutiques par nom_boutique, adresse, ville, departement ou code postal",
+        manual_parameters=[
+            openapi.Parameter('query', openapi.IN_QUERY, description="Recherche par nom_boutique, adresse, ville, departement ou code postal",
+                              type=openapi.TYPE_STRING)
+        ],  
+        responses={200: BoutiqueSerializer(many=True)}  
+    )
+    @action(detail=False, methods=['get'])  
+    def search_boutique(self, request):
+        query = request.query_params.get('query', '')
+        if not query:
+            return Response(
+                {"error": "Aucun critère de recherche fourni"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        boutiques = self.queryset.filter(
+            nom_boutique__icontains=query
+        ) | self.queryset.filter(
+            adresse__icontains=query
+        ) | self.queryset.filter(
+            ville__icontains=query
+        ) | self.queryset.filter(
+            departement__icontains=query
+        ) | self.queryset.filter(
+            code_postal__icontains=query
+        )
+        
+        serializer = self.get_serializer(boutiques, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        operation_description="Récupère les boutiques a proximite d'un client avec au moins un produit en stock",   
+        responses={
+            200: BoutiqueSerializer(many=True),
+            400: "Erreur de validation des paramètres"
+        }
+    )
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])   
+    def boutiques_proches(self, request):
+        latitude = request.GET.get('latitude')
+        longitude = request.GET.get('longitude')
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+
+        except (ValueError, TypeError):
+            return Response(
+                {"error": "Paramètres de latitude, longitude invalides"},
+                status=status.HTTP_400_BAD_REQUEST
+            )   
+        if not latitude or not longitude:
+            return Response(
+                {"error": "Latitude et longitude sont obligatoires"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        # Calculer le point géographique du client
+        client_location = Point(longitude, latitude, srid=4326)
+        # client_lambert93 = client_location.transform(2154, clone=True)  # Convertir en Lambert 93
+        # Filtrer les boutiques à proximité avec au moins un produit en stock en une distance de 20 km
+        boutiques_proches = Boutique.objects.filter(
+            location__distance_lte=(client_location, 20000) # 20 km
+        ).annotate(distance=Distance('location', client_location)).order_by('distance')
+
+        resultats = []
+        if not boutiques_proches:
+            return Response(
+                {"message": "Aucune boutique trouvée dans un rayon de 20 km."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        else:
+            for boutique in boutiques_proches:
+                # Filtrer les stocks avec quantite > 0
+                stocks = boutique.stocks.filter(quantite__gt=0).select_related(
+                    'produit', 'produit__modele__marque', 'produit__modele'
+                )
+                for stock in stocks:
+                    resultats.append({
+                        "boutique": boutique.nom_boutique,
+                        "ville": boutique.ville,
+                        "latitude": boutique.latitude,
+                        "longitude": boutique.longitude,
+                        "adresse": boutique.adresse,
+                        "code_postal": boutique.code_postal,
+                        "departement": boutique.departement,                        
+                        "produit": stock.produit.nom_produit,
+                        "marque": stock.produit.modele.marque.marque,
+                        "modele": stock.produit.modele.modele,
+                        "prix": float(stock.produit.prix),
+                        "quantite": stock.quantite,
+                    })
+                    break
+                if len(resultats) >= 5:
+                    break  # Affichage des 5 premiers résultats
+            if not resultats:
+                return Response(
+                    {"message": "Aucun produit trouvé dans un rayon de 20 km."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        return Response(resultats, status=status.HTTP_200_OK)
+    
+     
+
 # ============================================================================
 # Gestion des produits
 # ============================================================================
@@ -692,7 +768,7 @@ class ProduitViewSet(viewsets.ModelViewSet):
         responses={200: ProduitSerializer(many=True)}
     )
     @action(detail=False, methods=['get'])
-    def rechercher(self, request):
+    def search_product(self, request):
         query = request.query_params.get('query', '')
         if not query:
             return Response(

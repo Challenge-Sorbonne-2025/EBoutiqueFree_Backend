@@ -6,10 +6,11 @@ from rest_framework import status
 
 from .models import Boutique
 from .permissions import EstGestionnaireOuResponsable
+from rest_framework.permissions import AllowAny
 
 # API : Recherche des 5 boutiques les plus proches avec stock non nul
 @api_view(['GET'])
-@permission_classes([EstGestionnaireOuResponsable])
+@permission_classes([AllowAny])
 def boutiques_produits_json(request):
     try:
         # Lecture des coordonnées GPS depuis la requête
