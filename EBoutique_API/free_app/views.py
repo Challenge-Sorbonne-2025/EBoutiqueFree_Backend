@@ -4,7 +4,7 @@ from drf_yasg.utils import swagger_auto_schema
 from .serializers import UserProfileSerializer, ArchivedUserSerializer
 from boutique.permissions import EstResponsableBoutique, PeuModifierUserProfile
 from boutique.serializers import UserSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -70,11 +70,19 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         operation_description="Get All Users Profiles in gestionnaires Role",
         responses={200: UserProfileSerializer(many=True)}
     )
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
     def allGestionnaires(self, request, *args, **kwargs):
         queryset = UserProfile.objects.filter(role='GESTIONNAIRE')
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def allResponables(self, request, *args, **kwargs):
+        queryset = UserProfile.objects.filter(role='RESPONSABLE')
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+
 
 # ============================================================================
 # J'ai ajouter cette vue pour recuperer uniquement l'utilisateur connecté

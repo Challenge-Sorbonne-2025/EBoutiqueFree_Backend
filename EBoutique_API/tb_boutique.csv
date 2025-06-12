@@ -1,0 +1,227 @@
+longitude,latitude,departement,ville,adresse,code_postal,boutique_id,Responsable
+-1.51815,43.49507,Pyrénées-Atlantiques,Anglet,Avenue Belle Marion,64600,1,1
+-1.42988,46.66976,Vendée,La Roche-sur-Yon,15 Rue Georges Clémenceau,85000,2,1
+-1.43024,46.69141,Vendée,La Roche-sur-Yon,CC Les Flaneries,85000,3,1
+-1.54907,47.16152,Loire-Atlantique,Rezé,"10 rond-point Corbinerie ,CC Océane",44400,4,1
+-1.46916,47.18722,Loire-Atlantique,Basse-Goulaine,CC Leclerc Pôle Sud,44115,5,1
+-1.49383,47.19164,Loire-Atlantique,Saint-Sébastien-sur-Loire,CC Auchan,44230,6,1
+-1.57205,47.19424,Loire-Atlantique,Rezé,"CC Leclerc Atout Sud ,1 Rue Ordronneau",44400,7,1
+-1.5351,47.20456,Loire-Atlantique,Nantes,"6 Rue du Dr Zamenhoff ,CC Beaulieu",44202,8,1
+-1.55925,47.21496,Loire-Atlantique,Nantes,14 Rue de la Contrescarpe,44003,9,1
+-3.16566,48.56226,Côtes-d'Armor,Guingamp,CC Guingamp,22200,10,1
+-1.55471,47.21563,Loire-Atlantique,Nantes,"28 Rue de la Marne ,Quartier Decré",44000,11,1
+-1.63044,47.22492,Loire-Atlantique,Saint-Herblain,CC Atlantis,44800,12,1
+-1.51842,47.25076,Loire-Atlantique,Nantes,"14 Route de Paris ,CC Paridis",44300,13,1
+-2.26452,47.25845,Loire-Atlantique,Saint-Nazaire,CC Géant Océanis,44600,14,1
+-2.21331,47.27441,Loire-Atlantique,Saint-Nazaire,2 Avenue de la République,44600,15,1
+-2.39138,47.28597,Loire-Atlantique,La Baule-Escoublac,128 Avenue du Général de Gaulle,44500,16,1
+-2.20884,47.30136,Loire-Atlantique,Trignac,CC Auchan,44570,17,1
+-2.42696,47.32693,Loire-Atlantique,Guérande,Place du Marhallé,44350,18,1
+-2.08496,47.64874,Ille-et-Vilaine,Redon,50 Grande-Rue,35600,19,1
+-2.76058,47.65561,Morbihan,Vannes,15 Place de la République,56000,20,3
+-2.79326,47.66015,Morbihan,Vannes,CC Carrefour,56000,21,3
+-2.9868,47.6673,Morbihan,Auray,10 Rue du Maréchal Foch,56400,22,3
+-2.79373,47.66736,Morbihan,Vannes,CC Leclerc,56000,23,3
+-1.37718,47.71792,Loire-Atlantique,Châteaubriant,5 Place de la Motte,44110,24,3
+-3.36336,47.74834,Morbihan,Lorient,13 Place Aritstide Briand,56100,25,3
+-3.39713,47.76576,Morbihan,Lorient,CC Carrefour,56100,26,3
+-0.36795,43.29456,Pyrénées-Atlantiques,Pau,Rue Louis Barthou,64000,27,3
+-1.05382,43.70975,Landes, Vas,38 Rue des Carmes,40100,28,3
+-0.58472,44.83872,Gironde,Bordeaux,CC Mériadeck,33000,29,3
+-0.57845,44.84174,Gironde,Bordeaux,52 Cours de l'Intendance,33000,30,3
+-0.22136,44.90157,Gironde,Libourne,"CC Carrefour ,102 Avenue Général de Gaulle",33500,31,3
+-0.24219,44.91571,Gironde,Libourne,58 Rue Gambetta,33500,32,3
+-1.02735,45.62466,Charente-Maritime,Royan,8 bis Boulevard de la République,17200,33,3
+-0.32633,45.6942,Charente,Cognac,29 Rue d’Angoulême,16100,34,3
+-0.63267,45.74576,Charente-Maritime,Saintes,22 Rue d’Alsace-Lorraine,17100,35,3
+-0.96144,45.93549,Charente-Maritime,Rochefort,53 Avenue Charles de Gaulle,17300,36,3
+-1.15074,46.16116,Charente-Maritime,La Rochelle,31 Rue Saint-Yon,17000,37,3
+-1.11774,46.17372,Charente-Maritime,Puilboreau,"CC Carrefour ,ZA de Beaulieu",17138,38,3
+-0.46229,46.32487,Deux-Sèvres,Niort,26 Rue Victor Hugo,79000,39,3
+-0.8067,46.4663,Vendée,Fontenay-le-Comte,12 Rue Georges Clémenceau,85200,40,1
+-0.24949,46.6481,Deux-Sèvres,Parthenay,38 Rue Jean Jaurès,79200,41,1
+-0.49274,46.83925,Deux-Sèvres,Bressuire,23 Rue de la Huchette,79300,42,1
+-1.01455,46.87096,Vendée,Les Herbiers,17 Rue de l’Eglise,85500,43,1
+-0.90116,47.04227,Maine-et-Loire,Cholet,"CC Géant ,Route des Sables d’O.",49300,44,1
+-0.87739,47.06253,Maine-et-Loire,Cholet,Place Alexis Guérineau,49300,45,1
+-0.07864,47.25827,Maine-et-Loire,Saumur,35 Rue du Portail Louis,49400,46,1
+-0.52473,47.46725,Maine-et-Loire,Angers,"CC Espace Anjou ,75 Rue Montaigne",49100,47,1
+-0.59538,47.46833,Maine-et-Loire,Angers,CC Carrefour Grand-Maine,49000,48,1
+-0.55445,47.47214,Maine-et-Loire,Angers,"CC Fleur d’Eau ,Rue Plantagenêt",49100,49,1
+-0.55046,47.47277,Maine-et-Loire,Angers,10 bis Rue Lenepveu,49100,50,1
+-0.54232,47.4891,Maine-et-Loire,Angers,CC Carrefour Saint-Serge,49100,51,1
+-0.07385,47.69941,Sarthe,La Flèche,28 Grande-Rue,72200,52,1
+-4.52669,48.38848,Finistère,Brest,CC Carrefour Iroise,29200,53,1
+-4.48905,48.38817,Finistère,Brest,64 Rue de Siam,29200,54,1
+-4.4877,48.38911,Finistère,Brest,95 Rue de Siam,29200,55,1
+-4.48241,48.3928,Finistère,Brest,Rue Dupleix,29200,56,1
+-4.48174,48.39294,Finistère,Brest,Rue Jean Jaurès,29200,57,1
+-4.46627,48.4076,Finistère,Brest,"CC Géant ,29 Route Gouesnou",29200,58,1
+-4.32743,48.09396,Finistère,Douarnenez,25 Rue Voltaire,29100,59,1
+-4.32301,48.57334,Finistère,Lesneven,1 Rue de Jérusalem,29260,60,3
+-4.24799,48.4514,Finistère,Landerneau,6 Rue de la Tour d'Auvergne,29800,61,3
+-4.2216,47.865,Finistère,Pont-l'Abbé,10 Rue Jean Jacques Rousseau,29120,62,3
+-4.10525,47.99623,Finistère,Quimper,46 Rue de Kéréon,29000,63,3
+-4.10309,47.99614,Finistère,Quimper,26 Place Saint-Corentin,29000,64,3
+-4.09288,47.97566,Finistère,Quimper,"CC Géant Cornouaille ,163 Route de Bénodet",29000,65,3
+-4.08128,48.01498,Finistère,Quimper,CC Gourvily,29000,66,3
+-4.07054,48.50978,Finistère,Landivisiau,CC Landivisiau,29400,67,3
+-3.82825,48.57815,Finistère,Morlaix,8 Place des Otages,29600,68,3
+-3.91796,47.87188,Finistère,Concarneau,2 Place Jean Jaurès,29900,69,3
+-3.85191,48.57439,Finistère,Saint-Martin-des-Champs,CC Géant Bretagnia,29600,70,3
+-3.57016,48.27702,Finistère,Carhaix-Plouguer,Place du Champ de Foire,29270,71,3
+-3.34343,47.77556,Morbihan,Lanester,CC Géant,56600,72,3
+-3.14917,48.56153,Côtes-d'Armor,Guingamp,10 Place du Champ au Roy,22200,73,3
+-2.9657,48.06652,Morbihan,Pontivy,46 Rue Nationale,56300,74,3
+-2.72855,48.49653,Côtes-d'Armor,Langueux,1 Rue Jules Verne,22360,75,3
+-2.39831,47.93103,Morbihan,Ploërmel,Rue du Général Dubreton,56800,76,3
+-2.04863,48.45374,Côtes-d'Armor,Dinan,2 Rue Châteaubriand,22100,77,3
+-0.77394,48.07069,Mayenne,Laval,5 Avenue du Général de Gaulle,53000,78,3
+-0.7996,48.07934,Mayenne,Laval,"CC Grenoux ,Boulevard de Tassigny",53000,79,3
+-1.67791,48.08253,Ille-et-Vilaine,Rennes,"CC Alma ,Rue du Bosphore",35001,80,1
+-1.67945,48.10465,Ille-et-Vilaine,Rennes,40 Place du Colombier,35000,81,1
+-1.67796,48.10986,Ille-et-Vilaine,Rennes,Place de la République,35000,82,1
+-1.58947,48.1122,Ille-et-Vilaine,Cesson-Sévigné,CC Carrefour La Rigoudière,35510,83,1
+-1.67946,48.11331,Ille-et-Vilaine,Rennes,9 Rue Bastard,35000,84,1
+-1.20714,48.11484,Ille-et-Vilaine,Vitré,"CC Leclerc ,Rue du Mée",35500,85,1
+-1.6958,48.13841,Ille-et-Vilaine,Rennes,CC Géant Grand-Quartier,35760,86,1
+-1.76676,48.139,Ille-et-Vilaine,Pacé,"CC Cora ,ZA de la Giraudais",35740,87,1
+-0.62209,48.30347,Mayenne,Mayenne,40 Place Gambetta,53100,88,1
+-1.18218,48.3466,Ille-et-Vilaine,Fougères,"CC Carrefour ,39 Boulevard Grolay",35300,89,1
+-1.99573,48.62401,Ille-et-Vilaine,Cherance,CC La Madeleine,35400,90,1
+-1.36046,48.68554,Manche,Avranches,17 Rue de la Constitution,50300,91,1
+-0.02044,48.74427,Orne,Argentan,36 Rue de la Chaussée,61200,92,1
+-0.56827,48.7485,Orne,Flers,5 Rue de Messei,61100,93,1
+-1.59457,48.83728,Manche,Granville,57 Rue Couraye,50400,94,1
+-0.89077,48.83818,Calvados,Vire,16 Rue de la Saulnerie,14500,95,1
+-1.44417,49.04928,Manche,Coutances,4 Rue Saint-Nicolas,50200,96,1
+-1.09415,49.11442,Manche,Saint-Lô,23 Rue Torteron,50000,97,1
+-0.29341,49.16539,Calvados,Mondeville,"CC Carrefour ,Route de Paris",14120,98,1
+-0.36163,49.18203,Calvados,Caen,29 Boulevard du Maréchal Leclerc,14000,99,1
+-0.36453,49.18252,Calvados,Caen,8 Rue de Bras,14000,100,3
+-0.70697,49.27863,Calvados,Bayeux,74 bis Rue de Saint-Malo,14400,101,3
+-1.59872,49.60262,Manche,La Glacerie,CC Auchan Cotentin,50470,102,3
+-1.62529,49.63958,Manche,Cherbourg-Octeville,11 Rue Albert Mahieu,50100,103,3
+2.18816,43.5886,Tarn,Castres,Centre Ccial Auchan,81100,104,3
+1.48423,43.6316,Haute-Garonne,Balma-Gramont,CC Occitian,31200,105,3
+0.16669,44.49999,Lot-et-Garonne,Marmande,2-16 Rue Charles de Gaulle,47200,106,3
+0.10516,45.61913,Charente,La Couronne,"CC Auchan ,Route de Bordeaux",16400,107,3
+0.18269,45.69298,Charente,Champniers,"CC Géant ,ZAC Les Montagnes",16430,108,3
+0.37344,46.57546,Vienne,Poitiers,CC Géant Beaulieu,86000,109,3
+0.34309,46.58253,Vienne,Poitiers,18 Rue du Marché Notre-Dame,86000,110,3
+0.37,46.66609,Vienne,Chasseneuil-du-Poitou,"CC Auchan ,N10",86360,111,3
+0.54508,46.81716,Vienne,Châtellerault,73 Boulevard de Blossac,86100,112,3
+0.21711,47.97375,Sarthe,Le Mans,CC Carrefour Centre Sud,72100,113,3
+0.19619,48.00369,Sarthe,Le Mans,25 Place de la République,72000,114,3
+0.19874,48.00641,Sarthe,Le Mans,"CC Les Jacobins ,13 Rue Blondeau",72000,115,3
+0.17457,48.04227,Sarthe,La Chapelle Saint-Aubin,CC Auchan,72650,116,3
+0.65275,48.18692,Sarthe,La Ferté-Bernard,14 Rue Denfert-Rochereau,72400,117,3
+0.08787,48.431,Orne,Alençon,4 Rue du Jeudi,61000,118,3
+0.06151,48.4333,Orne,Condé-sur-Sarthe,CC Carrefour,61250,119,3
+1.82345,48.64428,Yvelines,Rambouillet,Rue du Général de Gaulle,78120,120,1
+2.17206,48.67639,Essonne,Les Ulis,CC Les Ulis 2,91940,121,1
+2.25333,48.70441,Essonne,Villebon-sur-Yvette,CC Villebon 2,91140,122,1
+0.62584,48.76374,Orne,L’Aigle,29 bis Rue Bec Ham,61300,123,1
+2.22137,48.78192,Yvelines,Vélizy-Villacoublay,CC Velizy_Villacoublay,78140,124,1
+2.04437,48.7831,Yvelines,Montigny-le-Bretonneux,Espace Saint-Quentin,78180,125,1
+2.13087,48.80618,Yvelines,Versailles,Rue au Pain,78000,126,1
+2.25183,48.82057,Hauts-de-Seine,Issy-les-Moulineaux,CC Les Trois Moulins,92130,127,1
+2.11767,48.82658,Yvelines,Le Chesnay,CC Parly 2,78150,128,1
+1.96079,48.82893,Yvelines,Plaisir,Grand Plaisir,78370,129,1
+0.07895,49.3598,Calvados,Deauville,32 Rue Désiré Le Hoc,14800,130,1
+0.10932,49.52168,Seine-Maritime,Le Havre,CC Auchan Grand-Cap,76620,131,1
+0.10943,49.49367,Seine-Maritime,Le Havre,62 Place de l’Hôtel de Ville,76600,132,1
+0.11085,49.49588,Seine-Maritime,Le Havre,22 Rue Casimir Perier,76600,133,1
+0.18997,49.52672,Seine-Maritime,Montivilliers,CC Auchan La Lézarde,76700,134,1
+0.22439,49.14521,Calvados,Lisieux,4 Rue des Mathurins,14100,135,1
+0.22587,49.50762,Seine-Maritime,Gonfreville-L’Orcher,CC Leclerc L’Océane,76700,136,1
+0.51521,49.35604,Eure,Pont-Audemer,28 Rue de la République,27500,137,1
+0.75287,49.61798,Seine-Maritime,Yvetot,26 bis Rue des Victoires,76190,138,1
+0.96711,49.53664,Seine-Maritime,Barentin,CC Carrefour Le Mesnil Roux,76360,139,3
+1.00539,49.28973,Seine-Maritime,Elbeuf,154 Rue Charles Mouchel,76500,140,3
+1.07516,49.92398,Seine-Maritime,Dieppe,16 Rue Victor Hugo,76200,141,3
+1.07822,49.90939,Seine-Maritime,Dieppe,CC Auchan Belvedère,76200,142,3
+1.09087,49.44306,Seine-Maritime,Rouen,4 Rue Guillaume Le Conquérant,76000,143,3
+1.09309,49.47128,Seine-Maritime,Mont-Saint-Aignan,CC Carrefour La Vatine,76130,144,3
+1.09632,49.32904,Seine-Maritime,Tourville-la-Rivière,CC Carrefour,76410,145,3
+1.14687,49.02603,Eure,Evreux,23 Rue du Docteur Oursel,27000,146,3
+1.16734,49.21087,Eure,Louviers,31 Rue du Général de Gaulle,27400,147,3
+1.17293,49.01361,Eure,Evreux,CC Carrefour,27930,148,3
+1.42064,50.05123,Seine-Maritime,Eu,35 Rue Charles Morin,76260,149,3
+1.48567,49.09194,Eure,Vernon,21 Rue Saint-Jacques,27200,150,3
+1.68522,48.98065,Yvelines,Buchelay,Centre Commercial Porte de Normandie,78200,151,3
+2.03394,48.90908,Yvelines,Chambourcy,CC Carrefour,78240,152,3
+2.1447,48.92792,Yvelines,Montesson,CC Carrefour,78360,153,3
+2.19686,48.94633,Yvelines,Sartrouville,CC Carrefour de Sartrouville,78500,154,3
+2.23732,48.89079,Hauts-de-Seine,Puteaux,CC Quatre-Temps,92800,155,3
+5.78407,43.83176,Alpes-de-Haute-Provence,Manosque,Boulevard de La Plaine,4100,156,3
+5.062,43.9307,Vaucluse,L'Isle sur la Sorgue,CC La Rode,84800,157,3
+5.69335,45.14975,Isère,Echirolles,CC Comboire,38130,158,3
+5.73229,45.15825,Isère,Grenoble,CC Grand-Place,38100,159,1
+3.42285,46.12616,Allier,Vichy,CC Vichy,3200,160,1
+7.74695,48.58286,Bas-Rhin,Strasbourg,10 Rue des Grandes Arcades,67065,161,1
+7.74472,48.58362,Bas-Rhin,Strasbourg,Place Kléber,67000,162,1
+2.45066,48.58404,Essonne,Villabé,CC Villabé,91100,163,1
+7.75763,48.58469,Bas-Rhin,Strasbourg,26 Avenue de la Marseillaise,67000,164,1
+2.30432,48.58524,Essonne,Brétigny-sur-Orge,CC Auchan,91220,165,1
+7.74234,48.58577,Bas-Rhin,Strasbourg,24 Place des Halles,67003,166,1
+2.42603,48.62863,Essonne,Évry,CC Evry 2,91000,167,1
+2.37316,48.71151,Essonne,Athis-Mons,CC Carrefour,91200,168,1
+2.27702,48.72561,Essonne,Massy,Centre Commercial Cora,91300,169,1
+2.30307,48.75372,Hauts-de-Seine,Antony,13 Rue Auguste Mounié,92160,170,1
+2.37166,48.75569,Val-de-Marne,Thias,CC Belle Epine,94320,171,1
+2.60899,48.77678,Seine-et-Marne,Pontault-Combault,CC Régional,77340,172,1
+2.29172,48.77849,Hauts-de-Seine,Sceaux,Rue Houdan,92330,173,1
+2.45641,48.77861,Val-de-Marne,Créteil,CC Créteil Soleil,94000,174,1
+2.3145,48.77943,Hauts-de-Seine,Bourg-la-Reine,Rue René Roeckel,92340,175,1
+2.31381,48.80572,Hauts-de-Seine,Bagneux,Avenue Henri Ravera,92220,176,1
+2.32914,48.81119,Val-de-Marne,Arcueil,CC de la Vache Noire,94110,177,1
+2.36253,48.8115,Val-de-Marne,Le Kremlin-Bicêtre,CC Okabé,94270,178,1
+2.31948,48.81805,Hauts-de-Seine,Montrouge,Avenue de la République,92120,179,1
+2.35547,48.82843,Non trouvé,Paris 13,CC Italie2,75013,180,1
+2.32941,48.83034,Non trouvé,Paris 14,39 Avenue du Général Leclerc,75014,181,1
+2.29011,48.91041,Hauts-de-Seine,Asnières-sur-Seine,2 Rue Pierre Brossolette,92600,182,1
+2.29044,48.8793,Non trouvé,Paris 17,69 Avenue des Ternes,75017,183,1
+2.29788,48.87247,Non trouvé,Paris 08,125 Avenue des Champs-Elysées,75008,184,1
+2.30617,48.96989,Val-d'Oise,Enghien-les-Bains,Rue du Général de Gaulle,95880,185,1
+2.32286,48.84281,Non trouvé,Paris 15,CC Maine-Montparnasse,75015,186,1
+2.33309,48.88404,Non trouvé,Paris 18,2 Rue Lepic,75018,187,1
+2.33369,48.87271,Non trouvé,Paris 09,23 Boulevard Haussmann,75009,188,1
+2.33965,48.85241,Non trouvé,Paris 06,126 Boulevard Saint-Germain,75006,189,1
+2.34083,49.04029,Val-d'Oise,Moisselles,CC Domont-Moisselles,95570,190,1
+2.34331,48.8759,Non trouvé,Paris 09,61 Rue La Fayette,75009,191,1
+2.3584,48.85598,Non trouvé,Paris 04,20 Rue de Rivoli,75004,192,1
+2.36349,48.86695,Non trouvé,Paris 03,13 Place de la République,75003,193,1
+2.3685,48.85443,Non trouvé,Paris 04,9 Boulevard Beaumarchais,75004,194,1
+2.37218,48.8522,Non trouvé,Paris 12,40 Rue du Faubourg Saint-Antoine,75012,195,1
+2.37518,48.90308,Seine-Saint-Denis,Aubervilliers,CC Le Millénaire,93300,196,1
+2.37647,48.85106,Non trouvé,Paris 12,100 Rue du Faubourg Saint-Antoine,75012,197,1
+2.39393,48.8401,Non trouvé,Paris 12,Avenue Daumesnil,75012,198,1
+2.42152,48.91944,Seine-Saint-Denis,Drancy,CC Avenir,93700,199,1
+2.44711,48.90632,Seine-Saint-Denis,Bobigny,CC Bobigny2,93000,200,3
+2.47716,48.88423,Seine-Saint-Denis,Rosny-sous-Bois,CC Rosny 2,93117,201,3
+2.48384,48.8371,Val-de-Marne,Nogent-sur-Marne,CC Nogent,94130,202,3
+2.54565,48.84044,Seine-Saint-Denis,Noisy-le-Grand,CC Arcades,93160,203,3
+2.54585,48.83876,Seine-Saint-Denis,Noisy-le-Grand,CC Basilique,93160,204,3
+2.6612,48.83766,Seine-et-Marne,Collégien,CC Bay 2,77090,205,3
+2.6621,48.94633,Seine-et-Marne,Claye-Souilly,CC Carrefour,77410,206,3
+2.92385,49.9394,Somme,Péronne,CC Intermarché,80200,207,3
+5.04043,43.83586,Vaucluse,Cavaillon,CC Cavaillon,84300,208,3
+5.39947,43.87658,Vaucluse,Apt,246 Quai Général Leclerc,84400,209,3
+4.80634,43.94871,Vaucluse,Avignon,3 Rue des Marchands,84000,210,3
+5.03791,44.04971,Vaucluse,Carpentras,463 Avenue Frédéric Mistral,84200,211,3
+5.05376,44.05592,Vaucluse,Carpentras,67 Avenue du Mont Ventoux,84200,212,3
+4.86383,43.95914,Vaucluse,Le Pontet,CC Avignon Nord,84130,213,3
+4.86576,43.92146,Vaucluse,Avignon,CC Mistral 7,84140,214,3
+4.81003,44.13738,Vaucluse,Orange,19 Rue de la République,84100,215,3
+4.83599,43.92861,Vaucluse,Avignon,CC Cap Sud,84000,216,3
+2.23855,48.89199,Hauts-de-Seine,Puteaux,Hall RER,92800,217,3
+-3.46181,48.73205,Côtes-d'Armor,Lannion,"Quai d'Aiguillon ,Près de la Poste",22300,218,3
+-2.75994,48.51365,Côtes-d'Armor,Saint-Brieuc,16 Rue Saint-Guillaume,22000,219,3
+-2.51445,48.46921,Côtes-d'Armor,Lamballe,15 Rue du Val,22400,220,3
+-2.01331,48.63428,Ille-et-Vilaine,Saint-Malo,63 Rue ville Pépin,35400,221,1
+-1.68094,48.10652,Ille-et-Vilaine,Rennes,22 Rue Tronjolly,35000,222,1
+-1.63332,48.13058,Ille-et-Vilaine,Rennes,"CC Intermarché Long-Champs ,Allée Morvan Lebesque",35700,223,1
+-1.71425,48.10412,Ille-et-Vilaine,Rennes,CC Leclerc Cleunay,35000,224,1
+-1.20047,48.35292,Ille-et-Vilaine,Fougères,6 Boulevard Jean Jaurès,35300,225,1
+-2.75916,47.65903,Morbihan,Vannes,23 Rue Joseph le Brix,56000,226,1

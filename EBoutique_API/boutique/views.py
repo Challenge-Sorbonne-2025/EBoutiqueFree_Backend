@@ -1,8 +1,7 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from django.contrib.gis.geos import Point
-from django.contrib.gis.db.models.functions import Distance
-from geopy.geocoders import Nominatim
+
+from rest_framework.permissions import AllowAny
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -17,16 +16,21 @@ from .models import (
 from .serializers import (
     MarqueSerializer, ModeleSerializer, BoutiqueSerializer,
     ProduitSerializer, StockSerializer, ArchivedProduitSerializer,
-    ArchivedBoutiqueSerializer, HistoriqueVentesSerializer,
-    DemandeSuppressionProduitSerializer
+    ArchivedBoutiqueSerializer, HistoriqueVentesSerializer, CSVImportSerializer, ProduitBulkCreateSerializer,
+    DemandeSuppressionProduitSerializer, BoutiqueBulkCreateSerializer, BoutiqueCSVImportSerializer
 )
 from .permissions import EstResponsableBoutique, EstGestionnaireOuResponsable
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 
 from boutique.models import Boutique, Stock
+from free_app.models import UserProfile
 
 from django.views.decorators.http import require_GET
+import csv
+import io
+from django.db import transaction
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # Page d'accueil avec compteur de boutiques
 
@@ -251,6 +255,167 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
         )
         instance.delete()
 
+    
+    @swagger_auto_schema(
+    operation_description="Ajout de plusieurs boutiques en masse via fichier CSV",
+    consumes=['multipart/form-data'],
+    responses={
+        200: openapi.Response(
+            description="Import réussi",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING, example='5 boutique(s) importée(s) avec succès'),
+                    'boutiques_creees': openapi.Schema(type=openapi.TYPE_INTEGER, example=5),
+                    'erreurs': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_STRING))
+                }
+            )
+        ),
+        400: openapi.Response(
+            description="Erreur de validation du fichier CSV",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'erreur': openapi.Schema(type=openapi.TYPE_STRING),
+                    'erreurs': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_STRING)),
+                    'colonnes_attendues': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_STRING))
+                }
+            )
+        ),
+        500: openapi.Response(
+            description="Erreur serveur",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'erreur': openapi.Schema(type=openapi.TYPE_STRING)
+                 }
+                )
+            )
+        }
+        )
+    @action(
+    detail=False, 
+    methods=['post'], 
+    permission_classes=[EstResponsableBoutique],
+    url_path='import_csv',  
+    parser_classes=[MultiPartParser, FormParser],
+    # Spécifier explicitement le serializer pour éviter la génération automatique
+    serializer_class=BoutiqueCSVImportSerializer
+    )
+    def import_csv(self, request):
+        """
+        Importer des boutiques à partir d'un fichier CSV.
+        
+        Format du fichier CSV attendu:
+        nom_boutique,adresse,ville,code_postal,departement,latitude,longitude,responsable
+        Boutique Test,123 Rue Example,Paris,75001,Paris,48.8566,2.3522,1,2
+        """
+        # Vérifier que seul le fichier CSV est fourni
+        if len(request.data) > 1 or 'fichier_csv' not in request.data:
+            return Response({
+                'erreur': 'Seul le fichier CSV doit être fourni. Aucun autre paramètre n\'est nécessaire.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = BoutiqueCSVImportSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        fichier_csv = serializer.validated_data['fichier_csv']
+
+        try: 
+            # Lire le contenu du fichier CSV
+            contenu = fichier_csv.read().decode('utf-8')
+            csv_reader = csv.DictReader(io.StringIO(contenu))
+            
+            boutiques_a_creer = []
+            erreurs = []
+            ligne_numero = 1  # Commencer à 1 pour ignorer l'en-tête
+
+            # Colonnes attendues
+            colonnes_attendues = ['nom_boutique', 'adresse', 'ville', 'code_postal', 
+            'departement', 'latitude', 'longitude', 'responsable',]   
+
+            if not all(col in csv_reader.fieldnames for col in colonnes_attendues):
+                colonnes_manquantes = [col for col in colonnes_attendues if col not in csv_reader.fieldnames]
+                return Response({
+                    'erreur': f"Colonnes manquantes dans le CSV: {', '.join(colonnes_manquantes)}",
+                    'colonnes_attendues': colonnes_attendues,
+                    'colonnes_trouvees': list(csv_reader.fieldnames)
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            for ligne in csv_reader:
+                ligne_numero += 1
+                
+                # Nettoyer les données (supprimer les espaces)
+                ligne_nettoyee = {k: v.strip() if isinstance(v, str) else v for k, v in ligne.items()}
+                
+                # Valider la ligne avec le serializer
+                boutique_serializer = BoutiqueBulkCreateSerializer(data=ligne_nettoyee)
+                
+                if boutique_serializer.is_valid():
+                    boutiques_a_creer.append(boutique_serializer.validated_data)
+                else:
+                    erreurs.append(f"Ligne {ligne_numero}: {boutique_serializer.errors}")
+            
+            # Si il y a des erreurs, on ne crée rien
+            if erreurs:
+                return Response({
+                    'message': 'Erreurs détectées dans le fichier CSV',
+                    'erreurs': erreurs,
+                    'boutiques_validees': len(boutiques_a_creer),
+                    'total_lignes': ligne_numero - 1
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Créer les boutiques en une seule transaction
+            boutiques_creees = 0
+            with transaction.atomic():
+                for donnees_boutique in boutiques_a_creer:
+                    # Créer le point géographique
+                    location = Point(
+                        float(donnees_boutique['longitude']),
+                        float(donnees_boutique['latitude']),
+                        srid=4326
+                    )
+
+                    donnees_creation = donnees_boutique.copy()
+                
+                # Gérer le responsable
+                    if 'responsable' in donnees_creation:
+                        # Si un responsable est spécifié dans le CSV, l'utiliser
+                        responsable_id = donnees_creation.pop('responsable')
+                        try:
+                            responsable = UserProfile.objects.get(profile_id=responsable_id)
+                        except UserProfile.DoesNotExist:
+                            # Si le responsable n'existe pas, utiliser l'utilisateur actuel
+                            responsable = request.user.profile
+                    else:
+                        # Si pas de responsable spécifié, utiliser l'utilisateur actuel
+                        responsable = request.user.profile
+                        
+                    # Créer la boutique
+                    Boutique.objects.create(
+                        responsable=responsable,
+                        location=location,
+                        **donnees_creation
+                    )
+                    boutiques_creees += 1
+            
+            return Response({
+                'message': f'{boutiques_creees} boutique(s) importée(s) avec succès',
+                'boutiques_creees': boutiques_creees,
+                'erreurs': []
+            }, status=status.HTTP_200_OK)
+            
+        except UnicodeDecodeError:
+            return Response({
+                'erreur': 'Erreur d\'encodage du fichier. Assurez-vous que le fichier est encodé en UTF-8'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                'erreur': f'Erreur lors du traitement du fichier: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+  
+   
 # ============================================================================
 # Gestion des produits
 # ============================================================================
@@ -516,6 +681,196 @@ class ProduitViewSet(viewsets.ModelViewSet):
 
        serializer = DemandeSuppressionProduitSerializer(demande)
        return Response(serializer.data)
+    
+
+    @swagger_auto_schema(
+        operation_description="Recherche de produit par nom, marque ou modele",
+        manual_parameters=[
+            openapi.Parameter('query', openapi.IN_QUERY, description="Recherche par nom, marque ou modele",
+                              type=openapi.TYPE_STRING)
+        ],
+        responses={200: ProduitSerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'])
+    def rechercher(self, request):
+        query = request.query_params.get('query', '')
+        if not query:
+            return Response(
+                {"error": "Aucun critère de recherche fourni"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        produits = self.queryset.filter(
+            nom_produit__icontains=query
+        ) | self.queryset.filter(
+            modele__marque__marque__icontains=query
+        ) | self.queryset.filter(
+            modele__modele__icontains=query
+        )
+        
+        serializer = self.get_serializer(produits, many=True)
+        return Response(serializer.data)
+
+
+    @swagger_auto_schema(
+        operation_description="Ajouter plusieurs produits en masse via fichier CSV",
+        consumes=['multipart/form-data'],  
+        responses={
+            201: openapi.Response(
+                description="Import réussi",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'message': openapi.Schema(type=openapi.TYPE_STRING, example='5 produit(s) importé(s) avec succès'),
+                        'produits_crees': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_INTEGER)),
+                        'erreurs': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_OBJECT))
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Erreur de validation du fichier CSV",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'erreur': openapi.Schema(type=openapi.TYPE_STRING),
+                        'erreurs': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_OBJECT)),
+                        'colonnes_attendues': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_STRING))
+                    }
+                )
+            ),
+            500: openapi.Response(
+                description="Erreur serveur",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'erreur': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            )
+        } 
+    )
+    @action(
+        detail=False,
+        methods=['post'],
+        permission_classes=[AllowAny],  
+        url_path='import_csv',  # URL personnalisée pour l'import CSV
+        parser_classes=[MultiPartParser, FormParser],  # Pour gérer les fichiers multipart/form-data
+        serializer_class=CSVImportSerializer,)
+    def import_csv(self, request):
+
+        if len(request.data) > 1 or 'csv_file' not in request.data:
+            return Response({
+                'erreur': 'Seul le fichier CSV doit être fourni. Aucun autre paramètre n\'est nécessaire.'
+            }, status=status.HTTP_400_BAD_REQUEST)      
+        # Valider le fichier CSV avec le serializer
+        serializer = CSVImportSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        fichier_csv = serializer.validated_data['csv_file']
+        try:
+            # Lire le contenu du fichier CSV
+            contenu = fichier_csv.read().decode('utf-8')
+            csv_reader = csv.DictReader(io.StringIO(contenu))
+
+            produits_a_creer = []   
+            erreurs = []
+            ligne_numero = 1  # Commencer à 1 pour ignorer l'en-tête
+
+            # Colonnes attendues
+            colonnes_attendues = [
+                'boutique_id', 'nom_produit',
+                'prix','couleur',  'capacite', 'ram', 'modele', 'image']   
+            if not all(col in csv_reader.fieldnames for col in colonnes_attendues):
+                colonnes_manquantes = [col for col in colonnes_attendues if col not in csv_reader.fieldnames]
+                return Response({
+                    'erreur': f"Colonnes manquantes dans le CSV: {', '.join(colonnes_manquantes)}",
+                    'colonnes_attendues': colonnes_attendues,
+                    'colonnes_trouvees': list(csv_reader.fieldnames)
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            for ligne in csv_reader:
+                ligne_numero += 1
+                
+                # Nettoyer les données (supprimer les espaces)
+                ligne_nettoyee = {k: v.strip() if isinstance(v, str) else v for k, v in ligne.items()}
+                
+                # Valider la ligne avec le serializer
+                produit_serializer = ProduitBulkCreateSerializer(data=ligne_nettoyee, context={'request': request})   
+                
+                if produit_serializer.is_valid():
+                    produits_a_creer.append(produit_serializer.validated_data)
+                else:
+                    erreurs.append({
+                        'ligne': ligne_numero,
+                        'erreurs': produit_serializer.errors,
+                        'data': ligne_nettoyee
+                    })   
+
+            # Si il y a des erreurs, on ne crée rien
+            if erreurs:
+                return Response({
+                    'message': 'Erreurs détectées dans le fichier CSV',
+                    'erreurs': erreurs,
+                    'produits_valides': len(produits_a_creer),
+                    'total_lignes': ligne_numero - 1
+                }, status=status.HTTP_400_BAD_REQUEST)     
+
+            # Créer les produits en une seule transaction
+            produits_crees = 0
+            with transaction.atomic():
+                for index, donnees_produit in enumerate(produits_a_creer, start=2):
+                    # Gérer le modèle et la boutique
+                    modele = Modele.objects.get(modele_id=donnees_produit['modele'])
+                 
+                    
+                    user = request.user # Récupérer le profil de l'utilisateur connecté
+                    # Créer le produit
+                    produit = Produit.objects.create(
+                        nom_produit=donnees_produit['nom_produit'],
+                        prix=donnees_produit['prix'],
+                        couleur=donnees_produit['couleur'],
+                        capacite=donnees_produit['capacite'],
+                        ram=donnees_produit['ram'],
+                        modele=modele,
+                        image=donnees_produit.get('image', None),
+                        user=user,
+                    )
+                    
+                    # Associer le produit à la boutique
+                    boutique_id = donnees_produit['boutique_id']
+                    try:
+                        boutique = Boutique.objects.get(boutique_id=boutique_id)
+                    except Boutique.DoesNotExist:
+                        erreurs.append({
+                            'ligne': index,
+                            'erreur': f"Boutique avec ID {boutique_id} non trouvée",
+                            'data': donnees_produit
+                        })
+                        continue
+                    
+                    # Créer le stock pour la boutique
+                    Stock.objects.create(
+                        produit=produit,
+                        boutique=boutique,
+                        quantite=donnees_produit.get('quantite_initiale', 10)
+                    )
+                    
+                    produits_crees += 1
+                
+                return Response({
+                    'message': f'{produits_crees} produit(s) importé(s) avec succès',
+                    'produits_crees': produits_crees,
+                    'erreurs': erreurs
+                }, status=status.HTTP_201_CREATED)
+        except UnicodeDecodeError:
+            return Response({
+                'erreur': 'Erreur d\'encodage du fichier. Assurez-vous que le fichier est encodé en UTF-8'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                'erreur': f'Erreur lors du traitement du fichier: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # ============================================================================
 # Gestion des stocks

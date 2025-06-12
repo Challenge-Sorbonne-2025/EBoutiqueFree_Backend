@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 # ============================================================================
 # Modèle pour stocker les informations de profil des utilisateurs.
 # ============================================================================
@@ -16,6 +17,8 @@ class UserProfile(models.Model):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES) # Rôle de l'utilisateur
     telephone = models.CharField(max_length=20, blank=True, null=True, unique=True) # Numéro de téléphone de l'utilisateur
     date_creation = models.DateTimeField(auto_now_add=True) # Date de création de l'utilisateur
+    from boutique.models import Boutique
+    boutiques = models.ForeignKey('boutique.Boutique', on_delete=models.SET_NULL, null=True, blank=True, related_name='gestionnaires_boutique')  # Gestionnaires Boutique
     date_maj = models.DateTimeField(auto_now=True) # Date de mise à jour de l'utilisateur   
 
     class Meta:

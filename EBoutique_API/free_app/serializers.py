@@ -41,10 +41,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'}, required=True)
     first_name = serializers.CharField(write_only=True, required=False)
     last_name = serializers.CharField(write_only=True, required=False)
+    # boutique = serializers.PrimaryKeyRelatedField(
+    #     queryset=Boutique.objects.all(), required=False, allow_null=True
+    # )
 
     class Meta:
         model = UserProfile
-        fields = ['profile_id', 'role', 'telephone', 'username', 'email', 'password', 'first_name', 'last_name']
+        fields = ['profile_id', 'role', 'telephone', 'username', 'email', 'password', 'first_name', 'last_name',]
 
     def create(self, validated_data):
         user_data = {

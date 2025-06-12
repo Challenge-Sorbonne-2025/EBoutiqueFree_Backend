@@ -80,7 +80,7 @@ class BoutiqueSerializer(serializers.ModelSerializer):
         """
         representation = super().to_representation(instance)
         representation['responsable'] = UserProfileSerializer(instance.responsable).data
-        representation['gestionnaires'] = UserProfileSerializer(instance.gestionnaires.all(), many=True).data
+        # representation['gestionnaires'] = UserProfileSerializer(instance.gestionnaires.all(), many=True).data
         return representation
 
     def destroy(self, instance):
@@ -307,3 +307,85 @@ class DemandeSuppressionProduitSerializer(serializers.ModelSerializer):
             validated_data['responsable'] = stock.boutique.responsable
         validated_data['demandeur'] = self.context['request'].user
         return super().create(validated_data) 
+    
+# ========================================================================================
+# Serializers pour avoir la possibilité de créer plusieurs boutiques en une seule requête
+# ========================================================================================
+
+class BoutiqueCSVImportSerializer(serializers.Serializer):
+    """
+    Serializer pour l'import de boutiques via fichier CSV
+    """
+    fichier_csv = serializers.FileField(
+        help_text="Fichier CSV contenant les données des boutiques",
+        required=True
+    )
+    
+    def validate_fichier_csv(self, value):
+        """
+        Valider le fichier CSV
+        """
+        if not value.name.endswith('.csv'):
+            raise serializers.ValidationError("Le fichier doit être au format CSV.")
+        
+        # Vérifier la taille du fichier (exemple: max 5MB)
+        if value.size > 10 * 1024 * 1024:
+            raise serializers.ValidationError("Le fichier ne doit pas dépasser 10MB.")
+        
+        return value
+    
+class BoutiqueBulkCreateSerializer(serializers.Serializer):
+    """
+    Serializer pour la création en masse de boutiques
+    """
+    nom_boutique = serializers.CharField(max_length=100)
+    adresse = serializers.CharField()
+    ville = serializers.CharField(max_length=50)
+    code_postal = serializers.CharField(max_length=10)
+    departement = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    longitude = serializers.DecimalField(max_digits=12, decimal_places=9, required=False)
+    latitude = serializers.DecimalField(max_digits=12, decimal_places=9, required=False)
+    num_telephone = serializers.CharField(max_length=20, required=False, allow_blank=True)
+    email = serializers.EmailField(required=False, allow_blank=True)
+    responsable = serializers.IntegerField(required=False, allow_null=True)
+    gestionnaires = serializers.CharField(required=False, allow_blank=True)  # IDs séparés par des virgules
+    
+    def validate_email(self, value):
+        if value and Boutique.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Une boutique avec cet email existe déjà.")
+        return value
+    
+    def validate_num_telephone(self, value):
+        if value and Boutique.objects.filter(num_telephone=value).exists():
+            raise serializers.ValidationError("Une boutique avec ce numéro de téléphone existe déjà.")
+        return value
+    
+
+class CSVImportSerializer(serializers.Serializer):
+    csv_file = serializers.FileField()
+    # boutique_id = serializers.IntegerField(required=True)
+
+
+class ProduitBulkCreateSerializer(serializers.Serializer):
+    """
+    Serializer pour la création en masse de produits
+    """
+    nom_produit = serializers.CharField(max_length=100)
+    modele = serializers.IntegerField()  # ID du modèle
+    prix = serializers.DecimalField(max_digits=10, decimal_places=2)
+    couleur = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    capacite = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    ram = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    boutique_id = serializers.IntegerField(required=True)  # ID de la boutique pour le stock initial
+    quantite_initiale = serializers.IntegerField(default=10, min_value=1)  # Quantité initiale en stock
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )  # Utilisateur qui crée le produit
+    def validate_modele(self, value):
+        """
+        Valide que le modèle existe.
+        """
+        if not Modele.objects.filter(modele_id=value).exists():
+            raise serializers.ValidationError("Le modèle spécifié n'existe pas.")
+        return value
+    
