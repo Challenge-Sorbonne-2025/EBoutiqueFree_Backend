@@ -490,6 +490,38 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
                 )
         return Response(resultats, status=status.HTTP_200_OK)
     
+
+    @swagger_auto_schema(
+        operation_description="Recuperer tous les produits d'une boutique",
+        manual_parameters=[
+            openapi.Parameter('boutique_id', openapi.IN_QUERY, description="ID de la boutique",
+                              type=openapi.TYPE_INTEGER)
+        ],      
+        responses={
+            200: ProduitSerializer(many=True),
+            400: "Erreur de validation des paramètres"
+        }
+    )
+    @action(detail=False, methods=['get'], permission_classes=[EstGestionnaireOuResponsable])
+    def getProduitByBoutiqueId(self, request):
+        boutique_id = request.query_params.get('boutique_id')
+        if not boutique_id:
+            return Response(
+                {"error": "ID de la boutique est obligatoire"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            boutique = Boutique.objects.get(boutique_id=boutique_id)
+        except Boutique.DoesNotExist:
+            return Response(
+                {"error": "Boutique non trouvée"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        # recuperer tous les produits de la boutique
+        produits = Produit.objects.filter(stocks__boutique=boutique).distinct()
+        serializer = ProduitSerializer(produits, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
      
 
 # ============================================================================
@@ -498,8 +530,7 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
 class ProduitViewSet(viewsets.ModelViewSet):
     queryset = Produit.objects.all()
     serializer_class = ProduitSerializer
-    permission_classes = [EstGestionnaireOuResponsable]
-    
+    permission_classes = [EstGestionnaireOuResponsable]  
 
     @swagger_auto_schema(
         operation_description="Crée un nouveau produit",
@@ -767,7 +798,7 @@ class ProduitViewSet(viewsets.ModelViewSet):
         ],
         responses={200: ProduitSerializer(many=True)}
     )
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])   
     def search_product(self, request):
         query = request.query_params.get('query', '')
         if not query:

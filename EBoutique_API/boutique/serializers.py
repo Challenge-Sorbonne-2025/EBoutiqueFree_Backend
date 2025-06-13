@@ -129,7 +129,13 @@ class ProduitSerializer(serializers.ModelSerializer):
                 boutiques_info.append({
                     'boutique_id': stock.boutique.boutique_id,
                     'nom_boutique': stock.boutique.nom_boutique,
-                    'quantite': stock.quantite
+                    'adresse': stock.boutique.adresse,
+                    'ville': stock.boutique.ville,
+                    'code_postal': stock.boutique.code_postal,
+                    'departement': stock.boutique.departement,
+                    'longitude': stock.boutique.longitude,
+                    'latitude': stock.boutique.latitude,                   
+                    'quantite': stock.quantiteIbra
                 })
             except (Boutique.DoesNotExist, AttributeError):
                 continue

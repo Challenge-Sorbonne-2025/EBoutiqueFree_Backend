@@ -11,7 +11,7 @@ from rest_framework.permissions import AllowAny
 # API : Recherche des 5 boutiques les plus proches avec stock non nul
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def boutiques_produits_json(request):
+def boutiques_produits_json(request):   
     try:
         # Lecture des coordonnées GPS depuis la requête
         lat = float(request.GET.get("lat"))
@@ -55,6 +55,6 @@ def boutiques_produits_json(request):
             if len(resultats) >= 5:
                 break  # Affichage des 5 premiers résultats
         if not resultats:
-            return Response({"message": "Aucun produit trouvé dans un rayon de 10 km."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "Aucun produit trouvé dans un rayon de 20 km."}, status=status.HTTP_404_NOT_FOUND)
    
         return Response(resultats)

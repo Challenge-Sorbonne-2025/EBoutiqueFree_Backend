@@ -81,7 +81,7 @@ class Produit(models.Model):
     capacite = models.DecimalField(max_digits=10, decimal_places=2)  # Capacité de stockage
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='produits')  # Utilisateur ayant ajouté le produit
     ram = models.DecimalField(max_digits=10, decimal_places=2)  # Quantité de RAM
-    image = models.ImageField(upload_to='produits/', null=True, blank=True)  # Image du produit (optionnelle)
+    image = models.URLField(max_length=500, null=True, blank=True)  # Image du produit (optionnelle)
     validation_responsable = models.BooleanField(default=False)  # Validation du responsable de la boutique
 
     class Meta:
