@@ -28,3 +28,4 @@ django-rest-swagger
 django-cors-headers
 dj-database-url
 geopy
+django-cors-headers
