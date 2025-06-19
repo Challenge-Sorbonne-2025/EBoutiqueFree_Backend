@@ -80,7 +80,6 @@ class BoutiqueSerializer(serializers.ModelSerializer):
         """
         representation = super().to_representation(instance)
         representation['responsable'] = UserProfileSerializer(instance.responsable).data
-        # representation['gestionnaires'] = UserProfileSerializer(instance.gestionnaires.all(), many=True).data
         return representation
 
     def destroy(self, instance):
@@ -100,6 +99,26 @@ class BoutiqueSerializer(serializers.ModelSerializer):
             raison="Point de vente fermé"
         )
         instance.delete()
+
+class GestionnaireBoutiqueSerializer(serializers.ModelSerializer):
+    """
+    Serializer pour les gestionnaires de boutique.
+    Inclut les informations de base du gestionnaire et la boutique associée.
+    """
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
+        read_only_fields = ['id']
+        extra_kwargs = {
+            'profile': {'read_only': True}  # Le profil est géré par le UserProfileSerializer
+        }
+    def to_representation(self, instance):
+        """
+        Personnalise la représentation du gestionnaire en incluant les détails de la boutique.
+        """
+        representation = super().to_representation(instance)
+        representation['boutique'] = BoutiqueSerializer(instance.profile.boutiques).data if instance.profile.boutiques else None
+        return representation
 
 class ProduitSerializer(serializers.ModelSerializer):
     """
@@ -384,9 +403,8 @@ class ProduitBulkCreateSerializer(serializers.Serializer):
     ram = serializers.CharField(max_length=50, required=False, allow_blank=True)
     boutique_id = serializers.IntegerField(required=True)  # ID de la boutique pour le stock initial
     quantite_initiale = serializers.IntegerField(default=10, min_value=1)  # Quantité initiale en stock
-    user = serializers.HiddenField(
-        default=serializers.CurrentUserDefault()
-    )  # Utilisateur qui crée le produit
+    image = serializers.URLField(required=False, allow_blank=True)  # Image du produit (optionnelle)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())  # Utilisateur qui crée le produit
     def validate_modele(self, value):
         """
         Valide que le modèle existe.
