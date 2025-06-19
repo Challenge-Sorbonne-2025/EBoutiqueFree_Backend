@@ -26,5 +26,5 @@ COPY . .
 RUN chmod +x ./entrypoint.sh
 
 # Expose le port du serveur Django
-EXPOSE  9000
+EXPOSE  5000
 ENTRYPOINT ["sh", "./entrypoint.sh"]
