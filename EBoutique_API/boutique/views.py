@@ -18,7 +18,7 @@ from .serializers import (
     MarqueSerializer, ModeleSerializer, BoutiqueSerializer,
     ProduitSerializer, StockSerializer, ArchivedProduitSerializer,
     ArchivedBoutiqueSerializer, HistoriqueVentesSerializer, CSVImportSerializer, ProduitBulkCreateSerializer,
-    DemandeSuppressionProduitSerializer, BoutiqueBulkCreateSerializer, BoutiqueCSVImportSerializer
+    DemandeSuppressionProduitSerializer, BoutiqueBulkCreateSerializer, BoutiqueCSVImportSerializer, GestionnaireBoutiqueSerializer
 )
 from .permissions import EstResponsableBoutique, EstGestionnaireOuResponsable
 from rest_framework.permissions import IsAuthenticated
@@ -32,6 +32,7 @@ import csv
 import io
 from django.db import transaction
 from rest_framework.parsers import MultiPartParser, FormParser
+from free_app.serializers import UserProfileSerializer
 
 
 
@@ -522,7 +523,95 @@ class BoutiqueViewSet(viewsets.ModelViewSet):
         produits = Produit.objects.filter(stocks__boutique=boutique).distinct()
         serializer = ProduitSerializer(produits, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-     
+    
+    @swagger_auto_schema(
+        operation_description="Assigner un gestionnaire à une boutique",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'profile_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='ID du gestionnaire à assigner')
+            },   
+            required=['profile_id']
+        ),
+        responses={
+            200: GestionnaireBoutiqueSerializer(),
+            400: "Erreur de validation des paramètres",
+            404: "Boutique ou gestionnaire non trouvé"
+        } 
+    )
+    @action(detail=True, methods=['post'], permission_classes=[EstResponsableBoutique]) 
+    def affecter_gestionnaire(self, request, pk=None):
+        """
+        Assigner un gestionnaire à une boutique.
+        """
+        try:
+            boutique = self.get_object()
+        except Boutique.DoesNotExist:
+            return Response(
+                {"error": "Boutique non trouvée"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        profile_id = request.data.get('profile_id')
+        if not profile_id:
+            return Response(
+                {"error": "ID du gestionnaire est obligatoire"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            gestionnaire = UserProfile.objects.get(profile_id=profile_id)
+            if gestionnaire.role != 'GESTIONNAIRE':
+                return Response(
+                    {"error": "Le profil spécifié n'est pas un gestionnaire"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except UserProfile.DoesNotExist:
+            return Response(
+                {"error": "Gestionnaire non trouvé"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Assigner le gestionnaire à la boutique
+        gestionnaire.boutiques = boutique
+        gestionnaire.save()
+    
+        
+        serializer = GestionnaireBoutiqueSerializer(gestionnaire.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @swagger_auto_schema(
+        operation_description="Récupérer les gestionnaires d'une boutique",
+        responses={
+            200: UserProfileSerializer(many=True),
+            404: "Boutique non trouvée"
+        }
+    )
+    @action(detail=True, methods=['get'], permission_classes=[AllowAny])
+    def get_gestionnaires(self, request, pk=None):
+        """
+        Récupérer les gestionnaires d'une boutique.
+        """
+        try:
+            boutique = self.get_object()
+        except Boutique.DoesNotExist:
+            return Response(
+                {"error": "Boutique non trouvée"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Récupérer les gestionnaires associés à la boutique
+        gestionnaires = boutique.gestionnaires_boutique.filter(role='GESTIONNAIRE')
+        
+        if not gestionnaires.exists():
+            return Response(
+                {"message": "Aucun gestionnaire trouvé pour cette boutique"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        gestionnaires_users= [profile.user for profile in gestionnaires]
+        # Sérialiser les gestionnaires
+        serializer = UserProfileSerializer(gestionnaires, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 # ============================================================================
 # Gestion des produits
@@ -940,7 +1029,8 @@ class ProduitViewSet(viewsets.ModelViewSet):
                         capacite=donnees_produit['capacite'],
                         ram=donnees_produit['ram'],
                         modele=modele,
-                        image=donnees_produit.get('image', None),
+                        image=donnees_produit.get('image') or None,  # Utiliser None si l'image n'est pas fournie
+                        # image=donnees_produit["image"],
                         user=user,
                     )
                     
